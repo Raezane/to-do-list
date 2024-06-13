@@ -13,12 +13,30 @@
     </button>
   </div>
   <div id="header">
+    <button type="button" class="returnbutton">Back to main page</button>
     <h2>To-Do</h2>
   </div>
   <div id="content">
   </div>
-  <div id="taskfooter">
-    <button class="addTask">Add to-do to project</button>
+  <div id="toDoFooter">
+    <button class="addToDo">Add to-do to project</button>
+    <form id="toDoForm" action="get">
+      <div class="toDoInputWrapper">
+        <div>
+          <label for="toDo">To-Do:</label>
+          <input type="text" id="toDo" name="toDo">
+        </div>
+        <div>
+          <label for="chooseProject">Choose project:</label>
+          <select name="chooseProject" id="chooseProject">
+          </select>
+        </div>
+      </div>
+      <div class="addToDoButtons">
+        <button type="button">Cancel</button>
+        <button type="button">Add</button>
+      </div>
+    </form>
   </div>
   <dialog>
     <p>Add new project</p>
