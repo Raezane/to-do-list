@@ -7,6 +7,28 @@
 <script defer src="main.js"></script></head>
 <body>
   <div id="sidebar">
+    <div class="div">
+      <h3>Sort by</h3>
+    </div>
+    <div>
+      <h3>Due date</h3>
+      <div>
+        <input type="radio" id="all" name="filter" value="All" checked>
+        <label for="all">All</label>
+      </div>
+      <div>
+        <input type="radio" id="today" name="filter" value="Today">
+        <label for="today">Today</label>
+      </div>
+      <div>
+        <input type="radio" id="week" name="filter" value="This week">
+        <label for="week">This week</label>
+      </div>
+      <div>
+        <input type="radio" id="month" name="filter" value="This month">
+        <label for="month">This month</label>
+      </div>
+    </div>
     <button class="addproject">
       Add new project
       <img src="../src/addplus.svg" alt="plusicon">
@@ -14,8 +36,10 @@
   </div>
   <div id="header">
     <button type="button" class="returnbutton">Back to main page</button>
-    <h2>To-Do</h2>
-    <h3></h3>
+    <h2>Tasks</h2>
+    <div class="headerRight">
+      <h3></h3>
+    </div>
   </div>
   <div id="content">
   </div>
@@ -41,31 +65,37 @@
     </form>
   </div>
   <dialog>
-    <p>Add new project</p>
+    <div class="addProjectHeader">
+      <p>Add new project</p>
+    </div>
     <form method="dialog">
-      <div>
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title">
+      <div class="leftside">
+        <div>
+          <label for="title">Title:</label>
+          <input type="text" id="title" name="title">
+        </div>
+        <div>
+          <label for="description">Description:</label>
+          <input type="text" id="description" name="description">
+        </div>
+        <div>
+          <label for="dueDate">Due Date:</label>
+          <input type="date" id="dueDate" name="dueDate">
+        </div>
       </div>
-      <div>
-        <label for="description">Description:</label>
-        <input type="text" id="description" name="description">
-      </div>
-      <div>
-        <label for="dueDate">Due Date:</label>
-        <input type="date" id="dueDate" name="dueDate">
-      </div>
-      <div>
-        <label for="notes">Notes:</label>
-        <textarea name="notes" id="notes" rows="6" cols="20"></textarea>
-      </div>
-      <div>
-        <label for="priority">Priority level:</label>
-        <select name="priority" id="priority">
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
+      <div class="rightside">
+        <div>
+          <label for="notes">Notes:</label>
+          <textarea name="notes" id="notes" rows="6" cols="20"></textarea>
+        </div>
+        <div>
+          <label for="priority">Priority level:</label>
+          <select name="priority" id="priority">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
       </div>
       <div class="buttons">
         <button>Cancel</button>
