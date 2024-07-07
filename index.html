@@ -7,27 +7,27 @@
 <script defer src="main.js"></script></head>
 <body>
   <div id="sidebar">
-    <div class="div">
-      <h3>Sort by</h3>
-    </div>
-    <div>
-      <h3>Due date</h3>
-      <div>
+    <div id="radioselectors">
+      <label>
+        <img src="../src/calendar-all.svg" alt="calendar-all">
         <input type="radio" id="all" name="filter" value="All" checked>
-        <label for="all">All</label>
-      </div>
-      <div>
+        All
+      </label>
+      <label>
+        <img src="../src/calendar-today.svg" alt="calendar-today">
         <input type="radio" id="today" name="filter" value="Today">
-        <label for="today">Today</label>
-      </div>
-      <div>
+        Today
+      </label>
+      <label>
+        <img src="../src/calendar-week.svg" alt="calendar-week">
         <input type="radio" id="week" name="filter" value="This week">
-        <label for="week">This week</label>
-      </div>
-      <div>
+        This week
+      </label>
+      <label>
+        <img src="../src/calendar-month.svg" alt="calendar-month">
         <input type="radio" id="month" name="filter" value="This month">
-        <label for="month">This month</label>
-      </div>
+        This month
+      </label>
     </div>
     <button class="addproject">
       Add new project
@@ -36,6 +36,7 @@
   </div>
   <div id="header">
     <button type="button" class="returnbutton">Back to main page</button>
+    <img src="../src/calendar.svg" alt="calendaricon">
     <h2>Tasks</h2>
     <div class="headerRight">
       <h3></h3>
