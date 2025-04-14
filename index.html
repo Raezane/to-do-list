@@ -1,108 +1,108 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do List</title>
-<script defer src="main.js"></script></head>
-<body>
-  <div id="sidebar">
-    <div id="radioselectors">
-      <label>
-        <img src="40a97e1cbbb9b53a966d.svg" alt="calendar-all"/>
-        <input type="radio" id="all" name="filter" value="All" checked>
-        All
-      </label>
-      <label>
-        <img src="233385e32206cd372d69.svg" alt="calendar-today">
-        <input type="radio" id="today" name="filter" value="Today">
-        Today
-      </label>
-      <label>
-        <img src="518ff47ec29e1552eabd.svg" alt="calendar-week">
-        <input type="radio" id="week" name="filter" value="This week">
-        This week
-      </label>
-      <label>
-        <img src="1514cb89e66edd886067.svg" alt="calendar-month">
-        <input type="radio" id="month" name="filter" value="This month">
-        This month
-      </label>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List</title>
+  <script defer src="main.js"></script></head>
+  <body>
+    <div class="allwrapper">
+      <aside>
+        <div id="radioselectors">
+          <label>
+            <img src="40a97e1cbbb9b53a966d.svg" alt="calendar-all" />
+            <input type="radio" id="all" name="filter" value="All" checked />
+            All
+          </label>
+          <label>
+            <img src="233385e32206cd372d69.svg" alt="calendar-today" />
+            <input type="radio" id="today" name="filter" value="Today" />
+            Today
+          </label>
+          <label>
+            <img src="518ff47ec29e1552eabd.svg" alt="calendar-week" />
+            <input type="radio" id="week" name="filter" value="This week" />
+            This week
+          </label>
+          <label>
+            <img src="1514cb89e66edd886067.svg" alt="calendar-month" />
+            <input type="radio" id="month" name="filter" value="This month" />
+            This month
+          </label>
+        </div>
+        <button class="addproject">
+          Add new project
+          <img src="870ebd10ad1726111aad.svg" alt="plusicon" />
+        </button>
+      </aside>
+      <header>
+        <button type="button" class="returnbutton">Back to main page</button>
+        <img src="a2abf4a1ef85a198a5d4.png" alt="calendaricon" />
+        <h2>Tasks</h2>
+        <div class="headerRight">
+          <h3></h3>
+        </div>
+      </header>
+      <main></main>
+      <footer>
+        <button class="addToDo">Add to-do to project</button>
+        <form id="toDoForm" action="get">
+          <div class="toDoInputWrapper">
+            <div>
+              <label for="toDo">To-Do:</label>
+              <input type="text" id="toDo" name="toDo" required />
+            </div>
+            <div>
+              <label for="chooseProject">Choose project:</label>
+              <select name="chooseProject" id="chooseProject" required></select>
+            </div>
+          </div>
+          <div class="addToDoButtons">
+            <button type="button">Cancel</button>
+            <button type="button">Add</button>
+            <span class="spanDisplay">Added!</span>
+          </div>
+        </form>
+      </footer>
+      <dialog>
+        <div class="addProjectHeader">
+          <p>Add new project</p>
+        </div>
+        <form method="dialog">
+          <div class="leftside">
+            <div>
+              <label for="title">Title:</label>
+              <input type="text" id="title" name="title" />
+            </div>
+            <div>
+              <label for="description">Description:</label>
+              <input type="text" id="description" name="description" />
+            </div>
+            <div>
+              <label for="dueDate">Due Date:</label>
+              <input type="date" id="dueDate" name="dueDate" />
+            </div>
+          </div>
+          <div class="rightside">
+            <div>
+              <label for="notes">Notes:</label>
+              <textarea name="notes" id="notes" rows="6" cols="20"></textarea>
+            </div>
+            <div>
+              <label for="priority">Priority level:</label>
+              <select name="priority" id="priority">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+          </div>
+          <div class="buttons">
+            <button>Cancel</button>
+            <button type="submit"></button>
+          </div>
+        </form>
+      </dialog>
     </div>
-    <button class="addproject">
-      Add new project
-      <img src="870ebd10ad1726111aad.svg" alt="plusicon">
-    </button>
-  </div>
-  <div id="header">
-    <button type="button" class="returnbutton">Back to main page</button>
-    <img src="7627dfa4976d51ee938e.svg" alt="calendaricon">
-    <h2>Tasks</h2>
-    <div class="headerRight">
-      <h3></h3>
-    </div>
-  </div>
-  <div id="content">
-  </div>
-  <div id="toDoFooter">
-    <button class="addToDo">Add to-do to project</button>
-    <form id="toDoForm" action="get">
-      <div class="toDoInputWrapper">
-        <div>
-          <label for="toDo">To-Do:</label>
-          <input type="text" id="toDo" name="toDo" required>
-        </div>
-        <div>
-          <label for="chooseProject">Choose project:</label>
-          <select name="chooseProject" id="chooseProject" required>
-          </select>
-        </div>
-      </div>
-      <div class="addToDoButtons">
-        <button type="button">Cancel</button>
-        <button type="button">Add</button>
-        <span class="spanDisplay">Added!</span>
-      </div>
-    </form>
-  </div>
-  <dialog>
-    <div class="addProjectHeader">
-      <p>Add new project</p>
-    </div>
-    <form method="dialog">
-      <div class="leftside">
-        <div>
-          <label for="title">Title:</label>
-          <input type="text" id="title" name="title">
-        </div>
-        <div>
-          <label for="description">Description:</label>
-          <input type="text" id="description" name="description">
-        </div>
-        <div>
-          <label for="dueDate">Due Date:</label>
-          <input type="date" id="dueDate" name="dueDate">
-        </div>
-      </div>
-      <div class="rightside">
-        <div>
-          <label for="notes">Notes:</label>
-          <textarea name="notes" id="notes" rows="6" cols="20"></textarea>
-        </div>
-        <div>
-          <label for="priority">Priority level:</label>
-          <select name="priority" id="priority">
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-        </div>
-      </div>
-      <div class="buttons">
-        <button>Cancel</button>
-        <button type="submit"></button>
-      </div>
-    </form>
-  </dialog>
-</body>
+  </body>
 </html>
