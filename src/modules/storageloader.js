@@ -1,14 +1,12 @@
 import { parse } from "date-fns";
-import { viewer } from "./viewer";
-import { communicator } from "./controller";
-
-let controller = communicator();
+import { displayHandler } from "./displayModule";
+import { restoreProject, getProjectsForDom, fetchedProjects } from "./controller";
 
 function storage() {
-  const dataSaver = function (tasks) {
+  const dataSaver = function (projects) {
     const copy = [];
 
-    tasks.forEach((item) => {
+    projects.forEach((item) => {
       let projectObject = {};
 
       projectObject["project"] = item.getProject();
@@ -21,14 +19,14 @@ function storage() {
 
     const tasksJSON = JSON.stringify(copy);
 
-    localStorage.setItem("tasks", tasksJSON);
+    localStorage.setItem("projects", tasksJSON);
   };
 
-  const dataGetter = function () {
+  const dataGetter = function (displayObj) {
     const parsedTasks = JSON.parse(localStorage.getItem("tasks"));
 
     for (const task of parsedTasks) {
-      controller.restoreProject(
+      restoreProject(
         task.project.title,
         task.project.description,
         task.project.dueDate,
@@ -38,8 +36,8 @@ function storage() {
         task.toDos,
       );
     }
-    controller.getProjectsForDom(controller.getTasks());
-    viewer.projectsToOptions(controller.getTasks());
+    displayObj.addProjectsToDom(fetchedProjects);
+    displayObj.projectsToOptions(fetchedProjects);
   };
 
   return { dataSaver, dataGetter };

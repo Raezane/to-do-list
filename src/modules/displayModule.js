@@ -1,10 +1,28 @@
 import { format } from "date-fns";
-import { communicator } from "./controller";
-import { storage } from "./storageloader";
-import trashcan from "./images/trashcan.svg";
+//import { storage } from "./storageloader";
+import trashcan from "../images/trashcan.svg";
+import { 
+  fetchedProjects, 
+  createProject, 
+  modifyProject, 
+  addToDoToProject, 
+  getProjectToDos, 
+  getProjectsForDom, 
+  filterByDueDate, 
+  getValues, 
+  removeProject,
+  toDoRemove, 
+  toDoChecked,
+  toDoDoneOrNot
+} from "./controller";
 
-const viewer = (function () {
-  const controller = communicator();
+const displayHandler = function () {
+
+  const headerArea = document.querySelector('header');
+
+  const returnButton = document.querySelector(".returnbutton");
+  const currentHeader = document.querySelector('header span h2');
+  const headerImg = document.querySelector('header span img');
 
   const modalForm = document.querySelector("dialog form");
 
@@ -35,9 +53,6 @@ const viewer = (function () {
   const addedFloat = document.querySelector(".addToDoButtons span");
 
   const filters = document.querySelectorAll('input[type="radio"]');
-
-  const returnButton = document.querySelector(".returnbutton");
-  const projectHeader = document.querySelector("#header h3");
 
   const content = document.querySelector("main");
 
@@ -70,7 +85,7 @@ const viewer = (function () {
     e.preventDefault();
     if (projectValidity()) {
       if (addSaveProject.textContent === "Add Project") {
-        controller.createProject(
+        createProject(
           projectTitle.value,
           projectDescription.value,
           projectDueDate.value,
@@ -80,10 +95,10 @@ const viewer = (function () {
         modalForm.reset();
         projectNum.increaseNum();
 
-        // if modal is opened from existing project details-button and project info is then
-        // edited and saved, modify the clicked project details to set the new entered values
+        /* if modal is opened from existing project details-button and project info is then
+        edited and saved, modify the clicked project details to set the new entered values */
       } else
-        controller.modifyProject(
+        modifyProject(
           setDetailsButtonProject.getButton(),
           projectTitle.value,
           projectDescription.value,
@@ -92,9 +107,7 @@ const viewer = (function () {
           projectPriority.value,
         );
 
-      returnButton.style.display = "none";
-      projectHeader.style.display = "none";
-      projectsToOptions(controller.getTasks());
+      projectsToOptions(fetchedProjects);
       projectsaver.close();
       resetFilterSelection(filters);
     }
@@ -113,7 +126,7 @@ const viewer = (function () {
 
   addToDoAdd.addEventListener("click", () => {
     if (toDoValidity()) {
-      controller.addToDoToProject(
+      addToDoToProject(
         toDoInput.value,
         projectSelector.selectedIndex,
       );
@@ -123,7 +136,7 @@ const viewer = (function () {
       projectSelector.selectedIndex = -1;
 
       if (!(clickedToDosParent.getParent() == undefined)) {
-        controller.getProjectToDos(clickedToDosParent.getParent());
+        getProjectToDos(clickedToDosParent.getParent());
       }
       addToDoAnimate();
     }
@@ -132,17 +145,14 @@ const viewer = (function () {
   filters.forEach((filter) => {
     filter.addEventListener("click", (e) => {
       filterColour(e, filters);
-      controller.filterByDueDate(e.target.id);
-      returnButton.style.display = "none";
-      projectHeader.style.display = "none";
+      filterByDueDate(e.target.id);
     });
   });
 
   returnButton.addEventListener("click", () => {
     clickedToDosParent.setParent(undefined);
-    controller.getProjectsForDom(controller.getTasks());
-    returnButton.style.display = "none";
-    projectHeader.style.display = "none";
+    addProjectsToDom(fetchedProjects);
+    switchHeaderState('Projects');
     resetFilterSelection(filters);
   });
 
@@ -289,6 +299,14 @@ const viewer = (function () {
     projectPriority.value = values.priority;
   }
 
+  const switchHeaderState = function(headerstring) {
+    returnButton.classList.toggle('hide');
+    headerImg.classList.toggle('hide');
+    currentHeader.textContent = headerstring
+    currentHeader.classList.toggle('fontadjuster');
+    headerArea.classList.toggle('headerspacer');
+  }
+
   const addProjectsToDom = function (tasks) {
     //first empty parent container from project-elements, before refreshing with up-to-date projects
     //also reset index-calculator of dom-project elements
@@ -296,7 +314,7 @@ const viewer = (function () {
     domIndex.resetIndex();
 
     //add "Add to-do" bar, if there are projects available
-    updateToDoFooter(controller.getTasks());
+    updateToDoFooter(fetchedProjects);
 
     tasks.forEach((project) => {
       const projectDiv = document.createElement("div");
@@ -332,7 +350,8 @@ const viewer = (function () {
         clickedToDosParent.setParent(e.target.parentNode.parentNode);
         //empty parent container from project-elements, before refreshing with up-to-date to-dos
         content.textContent = "";
-        controller.getProjectToDos(e.target.parentNode.parentNode);
+        switchHeaderState(project.getProject().title)
+        getProjectToDos(e.target.parentNode.parentNode);
       });
 
       seeDetailsButton.addEventListener("click", (e) => {
@@ -343,7 +362,7 @@ const viewer = (function () {
         projectsaver.showModal();
         minDateToday();
 
-        let values = controller.getValues(pressedButtonProject);
+        let values = getValues(pressedButtonProject);
         setValuesToModal(values);
 
         addSaveProject.textContent = "Save";
@@ -358,10 +377,10 @@ const viewer = (function () {
           if (projectNum.getNum() !== 0) {
             projectNum.decreaseNum();
           }
-          controller.removeProject(e.target.parentNode.parentNode);
+          removeProject(e.target.parentNode.parentNode);
 
-          updateToDoFooter(controller.getTasks());
-          projectsToOptions(controller.getTasks());
+          updateToDoFooter(fetchedProjects);
+          projectsToOptions(fetchedProjects);
           filters[0].checked = true;
         }
       });
@@ -372,17 +391,15 @@ const viewer = (function () {
       colorByPriority(projectDiv, project.getProject().priority);
       content.append(projectDiv);
 
-      viewer.domIndex.increaseIndex();
+      domIndex.increaseIndex();
     });
   };
 
-  const addToDosToDom = function (projectToDos, projectTitle) {
-    projectHeader.textContent = projectTitle;
+  const addToDosToDom = function (projectToDos) {
     content.textContent = "";
 
-    //add 'return to main page'-button, when user opens to-dos of project
-    returnButton.style.display = "block";
-    projectHeader.style.display = "block";
+    //toggle 'return to main page'-button, when user opens to-dos of project
+
     domIndex.resetIndex();
 
     const ulList = document.createElement("ul");
@@ -413,20 +430,20 @@ const viewer = (function () {
       ulList.append(listItem);
 
       deleteIcon.addEventListener("click", (e) => {
-        controller.toDoRemove(
+        toDoRemove(
           clickedToDosParent.getParent(),
           e.target.parentNode.getAttribute("index-number"),
         );
       });
 
       toDoCheck.addEventListener("click", (e) => {
-        controller.toDoChecked(
+        toDoChecked(
           clickedToDosParent.getParent(),
           e.target.parentNode.getAttribute("index-number"),
         );
 
         if (
-          controller.toDoDoneOrNot(
+          toDoDoneOrNot(
             clickedToDosParent.getParent(),
             e.target.parentNode.getAttribute("index-number"),
           )
@@ -438,7 +455,7 @@ const viewer = (function () {
             "rgba(223, 223, 223, 0.706)";
       });
 
-      viewer.domIndex.increaseIndex();
+      domIndex.increaseIndex();
 
       content.append(ulList);
     });
@@ -451,6 +468,9 @@ const viewer = (function () {
     }
   };
 
+  //hide the return button when the page first loads
+  returnButton.classList.add('hide');
+
   return {
     projectsToOptions,
     projectNum,
@@ -458,8 +478,6 @@ const viewer = (function () {
     addProjectsToDom,
     addToDosToDom,
   };
-})();
+};
 
-export { viewer };
-
-storage().dataGetter();
+export { displayHandler };

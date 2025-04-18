@@ -23,12 +23,12 @@ body {
 
 @font-face {
   font-family: "ChakraPetch";
-  src: url("./ChakraPetch.ttf");
+  src: url("./fonts/ChakraPetch.ttf");
 }
 
 @font-face {
   font-family: "caveat";
-  src: url("./caveat.ttf");
+  src: url("./fonts/caveat.ttf");
 }
 
 button {
@@ -112,25 +112,28 @@ button:hover,
 }
 
 header {
+  box-sizing: border-box;
   grid-area: 1 / 2 / 2 / 3;
-  min-height: 70px;
+  height: 70px;
   background-color: rgb(223, 223, 223);
   display: flex;
-  position: relative;
   align-items: center;
   justify-content: center;
-  font-size: clamp(3rem, 3vw, 10rem);
   padding: 10px 0 10px 0;
   box-shadow: 2px 0 5px -2px black;
 }
 
-header h2 {
-  margin-right: 50px;
+header span {
+  display: flex;
+  margin-right: 20px;
 }
 
-header img {
-  height: 80%;
-  margin-right: 20px;
+header span h2 {
+  font-size: 40px;
+}
+
+header span img {
+  width: 50px;
   transform: rotate(-10deg);
 }
 
@@ -141,31 +144,10 @@ header h3,
   font-family: "ChakraPetch", "Times New Roman", Times, serif;
 }
 
-.headerRight {
-  position: absolute;
-  left: 80%;
-  overflow: auto;
-  margin-right: 30px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  padding-top: 20px;
-}
-
-header h3 {
-  display: none;
-  font-size: 25px;
-}
-
 .returnbutton {
-  display: none;
-  position: absolute;
-  right: 80%;
-  min-width: 100px;
-  margin: 20px 0 0 30px;
   border: none;
   padding: 10px;
+  margin-left: 20px;
   border-radius: 5px;
   font-size: 20px;
   font-weight: bold;
@@ -539,4 +521,18 @@ textarea {
 .toDoItem > input {
   width: 30px;
   height: 30px;
+}
+
+.hide {
+  display: none;
+}
+
+.headerspacer {
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.fontadjuster {
+  font-size: 25px;
+  font-weight: bold;
 }

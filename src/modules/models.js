@@ -1,18 +1,18 @@
 function allTasks() {
-  const tasks = [];
+  const projects = [];
 
-  const getTasks = () => tasks;
+  const getProjects = () => projects;
 
-  const addToTasks = function (project) {
-    tasks.push(project);
+  const addToProjects = function (project) {
+    projects.push(project);
   };
 
   const deleteProject = function (project) {
-    let projectToDelete = tasks.indexOf(project);
-    tasks.splice(projectToDelete, 1);
+    let projectToDelete = projects.indexOf(project);
+    projects.splice(projectToDelete, 1);
   };
 
-  return { getTasks, addToTasks, deleteProject };
+  return { getProjects, addToProjects, deleteProject };
 }
 
 function projectHandler(
