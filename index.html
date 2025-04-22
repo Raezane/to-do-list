@@ -8,31 +8,38 @@
   <body>
     <div class="allwrapper">
       <aside>
-        <div id="radioselectors">
-          <label>
-            <img src="40a97e1cbbb9b53a966d.svg" alt="calendar-all" />
-            <input type="radio" id="all" name="filter" value="All" checked />
-            All
-          </label>
-          <label>
-            <img src="233385e32206cd372d69.svg" alt="calendar-today" />
-            <input type="radio" id="today" name="filter" value="Today" />
-            Today
-          </label>
-          <label>
-            <img src="518ff47ec29e1552eabd.svg" alt="calendar-week" />
-            <input type="radio" id="week" name="filter" value="This week" />
-            This week
-          </label>
-          <label>
-            <img src="1514cb89e66edd886067.svg" alt="calendar-month" />
-            <input type="radio" id="month" name="filter" value="This month" />
-            This month
-          </label>
+        <div class="filterWrapper">
+          <button>Filter +</button>
+          <div id="radioselectors">
+            <label>
+              <img src="40a97e1cbbb9b53a966d.svg" alt="calendar-all" />
+              <input type="radio" id="all" name="filter" value="All" checked />
+              All
+            </label>
+            <label>
+              <img src="233385e32206cd372d69.svg" alt="calendar-today" />
+              <input type="radio" id="today" name="filter" value="Today" />
+              Today
+            </label>
+            <label>
+              <img src="518ff47ec29e1552eabd.svg" alt="calendar-week" />
+              <input type="radio" id="week" name="filter" value="This week" />
+              This week
+            </label>
+            <label>
+              <img src="1514cb89e66edd886067.svg" alt="calendar-month" />
+              <input type="radio" id="month" name="filter" value="This month" />
+              This month
+            </label>
+          </div>
         </div>
         <button class="addproject">
           Add new project
-          <img src="870ebd10ad1726111aad.svg" alt="plusicon" />
+          <svg fill="#currentColor" height="99px" width="99px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"/>       
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>            
+            <g id="SVGRepo_iconCarrier"><g><g><g><path d="M256,0C114.618,0,0,114.618,0,256s114.618,256,256,256s256-114.618,256-256S397.382,0,256,0z M256,469.333 c-117.818,0-213.333-95.515-213.333-213.333S138.182,42.667,256,42.667S469.333,138.182,469.333,256S373.818,469.333,256,469.333 z"/> <path d="M383.996,234.667H277.333V128c0-11.782-9.551-21.333-21.333-21.333s-21.333,9.551-21.333,21.333v106.667H128.038 c-11.782,0-21.333,9.551-21.333,21.333s9.551,21.333,21.333,21.333h106.628V384c0,11.782,9.551,21.333,21.333,21.333 s21.333-9.551,21.333-21.333V277.333h106.662c11.782,0,21.333-9.551,21.333-21.333S395.778,234.667,383.996,234.667z"/></g></g></g></g>   
+          </svg>
         </button>
       </aside>
       <header>
@@ -49,7 +56,7 @@
           <div class="toDoInputWrapper">
             <div>
               <label for="toDo">To-Do:</label>
-              <input type="text" id="toDo" name="toDo" required />
+              <input type="text" id="toDo" name="toDo" minlength="1" maxlength="30"/>
             </div>
             <div>
               <label for="chooseProject">Choose project:</label>
