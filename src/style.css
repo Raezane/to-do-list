@@ -21,6 +21,24 @@ body {
   background-color: white;
 }
 
+@media (max-width: 800px) {
+  
+  .allwrapper {
+    margin: 0;
+    height: 100vh;
+  }
+
+  #radioselectors label {
+    font-size: 15px;
+  }
+
+  .addproject {
+    max-width: 120px;
+    font-size: 15px;
+    padding: 10px;
+  }
+}
+
 @font-face {
   font-family: "ChakraPetch";
   src: url("./fonts/ChakraPetch.ttf");
@@ -39,8 +57,9 @@ aside {
   background-color: rgba(223, 223, 223, 0.706);
   box-shadow: 0px 1px 5px -2px black;
   grid-area: 1 / 1 / 4 / 2;
-  width: 200px;
-  padding: 20px;
+  width: min-content;
+  min-height: min-content;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -51,8 +70,7 @@ aside {
 #radioselectors {
   font-weight: bold;
   text-align: center;
-  margin-top: 100%;
-  font-size:  20px;
+  font-size: 20px;
 }
 
 input[type="radio"] {
@@ -76,13 +94,11 @@ input[type="radio"] {
   max-height: 50%;
 }
 
+.filterWrapper button,
 .addproject {
   background-color: white;
   display: flex;
-  height: 60px;
-  width: 100%;
-  min-width: min-content;
-  min-height: 70px;
+  min-height: min-content;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -91,12 +107,23 @@ input[type="radio"] {
   border-radius: 7px;
 }
 
+.filterWrapper button:hover,
 .addToDo:hover,
 .addproject:hover {
   background-color: rgb(79, 79, 79);
   color: white;
   transform: scale(1.05);
   transition: background-color 300ms, color 300ms, transform 300ms;
+}
+
+.addproject svg {
+  height: 40%;
+}
+
+.addproject:hover svg {
+  fill: white;
+  transform: rotate(180deg) scale(1.2);
+  transition: transform 300ms, fill 400ms;
 }
 
 .toDoItem > img:hover,
@@ -107,14 +134,11 @@ button:hover,
   cursor: pointer;
 }
 
-.addproject img {
-  height: 40%;
-}
 
 header {
   box-sizing: border-box;
   grid-area: 1 / 2 / 2 / 3;
-  height: 70px;
+  min-height: 70px;
   background-color: rgb(223, 223, 223);
   display: flex;
   align-items: center;
@@ -130,6 +154,7 @@ header span {
 
 header span h2 {
   font-size: 40px;
+  margin: auto;
 }
 
 header span img {
@@ -158,6 +183,7 @@ main {
   grid-area: 2 / 2 / 3 / 3;
   display: flex;
   flex-direction: column;
+  align-items: center;
   background: rgba(120, 118, 68, 0.045);
   gap: 20px;
   box-sizing: border-box;
@@ -271,14 +297,32 @@ footer {
   background-color: rgb(0, 0, 0, 0.6);
 }
 
+dialog:open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
 dialog {
   min-height: 270px;
-  width: 60%;
-  min-width: 700px;
-  max-width: 700px;
+  width: 700px;
   border-radius: 5px;
   border: none;
   padding: 0;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: transform 400ms, opacity 400ms
+}
+
+@starting-style {
+  dialog:open {
+    transform: translateY(-50%);
+    opacity: 0;
+  }
+}
+
+dialog .close {
+  transform: translateY(-50%);
+  opacity: 0;
 }
 
 .addProjectHeader {
@@ -402,13 +446,19 @@ textarea {
   border: 0px;
   border-radius: 5px;
   background-color: rgba(78, 78, 78, 0.2);
+  transition: all 200ms;
+}
+
+.buttons > button:hover {
+  background-color: rgb(93, 93, 93);
+  color: white;
 }
 
 .projectDiv {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-width: min-content;
+  width: 100%;
   border-radius: 5px;
   box-sizing: border-box;
   padding: 20px;
@@ -491,7 +541,7 @@ textarea {
 
 .toDoList {
   grid-column: 1 / 5;
-  min-width: 60%;
+  min-width: 80%;
 }
 
 .toDoItem {
@@ -499,22 +549,25 @@ textarea {
   justify-content: space-between;
   margin-bottom: 10px;
   align-items: center;
-  padding: 20px;
-  height: 40px;
+  min-width: min-content;
+  max-width: 750px;
+  padding: 10px;
+  height: 30px;
   border-radius: 7px;
   background-color: rgba(223, 223, 223, 0.706);
 }
 
 .toDoItem > label {
-  font-size: 30px;
-  padding-right: 20px;
+  width: 340px;
+  font-size: 23px;
+  padding-right: 25px;
   font-family: "caveat";
 }
 
 .toDoItem > img {
-  height: 70%;
+  height: 30px;
   margin-left: auto;
-  margin-right: 40px;
+  margin-right: 20px;
   color: red;
 }
 
@@ -525,6 +578,10 @@ textarea {
 
 .hide {
   display: none;
+}
+
+.hide2 {
+  visibility: hidden;
 }
 
 .headerspacer {

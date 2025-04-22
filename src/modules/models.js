@@ -24,12 +24,12 @@ function projectHandler(
   numOfProject,
 ) {
   const project = {
-    title: title,
-    description: description,
-    dueDate: dueDate,
-    notes: notes,
-    priority: priority,
-    numOfProject: numOfProject,
+    title,
+    description,
+    dueDate,
+    notes,
+    priority,
+    numOfProject,
     done: false,
   };
 

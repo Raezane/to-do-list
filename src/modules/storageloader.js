@@ -1,6 +1,4 @@
-import { parse } from "date-fns";
-import { displayHandler } from "./displayModule";
-import { restoreProject, getProjectsForDom, fetchedProjects } from "./controller";
+import { restoreProject, fetchedProjects } from "./controller";
 
 function storage() {
   const dataSaver = function (projects) {
@@ -23,7 +21,7 @@ function storage() {
   };
 
   const dataGetter = function (displayObj) {
-    const parsedTasks = JSON.parse(localStorage.getItem("tasks"));
+    const parsedTasks = JSON.parse(localStorage.getItem("projects"));
 
     for (const task of parsedTasks) {
       restoreProject(

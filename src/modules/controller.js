@@ -49,13 +49,13 @@ const createProject = function (
   notes,
   priority,
 ) {
-  //check if localstorage has loaded projects in tasks-array already
-  //and if it has, update the projectNum that will be used when creating
-  //new projects to be the num of latest project + 1. Otherwise new projects
-  //would be created from numOfProject = 0 all over again when page has been
-  //refreshed, and bugs would occur.
+  /* check if localstorage has loaded projects in tasks-array already
+  and if it has, update the projectNum that will be used when creating
+  new projects to be the num of latest project + 1. Otherwise new projects
+  would be created from numOfProject = 0 all over again when page has been
+  refreshed, and bugs would occur. */
   if (fetchedProjects.length > 0) {
-    viewer.projectNum.setNum(
+    displayObj.projectNum.setNum(
       fetchedProjects[fetchedProjects.length - 1].getProject().numOfProject + 1,
     );
   }
@@ -66,11 +66,14 @@ const createProject = function (
     dueDate,
     notes,
     priority,
-    viewer.projectNum.getNum(),
+    displayObj.projectNum.getNum(),
   );
-  tasks.addToTasks(project);
+  tasks.addToProjects(project);
   saveData();
+
   displayObj.addProjectsToDom(fetchedProjects);
+  displayObj.changeViewToMain();
+
 };
 
 const modifyProject = function (
@@ -140,8 +143,10 @@ const addToDoToProject = function (inputvalue, selectedProject) {
   const toDo = toDoHandler(inputvalue);
 
   fetchedProjects[selectedProject].addToDos(toDo);
-
+  let numOfToDos = fetchedProjects[selectedProject].getToDos().length
   saveData();
+
+  displayObj.updateProjectDiv(selectedProject, numOfToDos);
 };
 
 const getProjectToDos = function (projectDom) {
