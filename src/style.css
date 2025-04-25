@@ -21,14 +21,14 @@ body {
   background-color: white;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   
   .allwrapper {
     margin: 0;
     height: 100vh;
   }
 
-  #radioselectors label {
+  .radioselectors label {
     font-size: 15px;
   }
 
@@ -67,17 +67,26 @@ aside {
   box-sizing: border-box;
 }
 
-#radioselectors {
+.radioselectors {
   font-weight: bold;
   text-align: center;
   font-size: 20px;
+  transform: scaleY(0);
+  transition: transform 200ms ease-out;
+  transform-origin: top;
+  pointer-events: none;
+}
+
+.radioselectors.slideIntoView {
+  transform: scaleY(1);
+  pointer-events: all;
 }
 
 input[type="radio"] {
   appearance: none;
 }
 
-#radioselectors > label {
+.radioselectors > label {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -86,11 +95,11 @@ input[type="radio"] {
   padding-left: 5%;
 }
 
-#radioselectors > label:hover {
+.radioselectors > label:hover {
   background-color: rgba(155, 155, 155, 0.356) !important;
 }
 
-#radioselectors img {
+.radioselectors img {
   max-height: 50%;
 }
 
@@ -107,17 +116,30 @@ input[type="radio"] {
   border-radius: 7px;
 }
 
+.addproject {
+  transition: all 300ms;
+}
+
 .filterWrapper button:hover,
 .addToDo:hover,
 .addproject:hover {
   background-color: rgb(79, 79, 79);
   color: white;
   transform: scale(1.05);
-  transition: background-color 300ms, color 300ms, transform 300ms;
+}
+
+.addToDo:hover,
+.addproject:hover {
+  transition: all 300ms;
+}
+
+.filterWrapper button:hover {
+  transition: all 200ms;
 }
 
 .addproject svg {
   height: 40%;
+  transition: transform 300ms, fill 400ms;
 }
 
 .addproject:hover svg {
@@ -129,31 +151,31 @@ input[type="radio"] {
 .toDoItem > img:hover,
 .toDoItem > input:hover,
 button:hover,
-#radioselectors > label:hover,
+.radioselectors > label:hover,
 .projectDiv > div:nth-child(2) button {
   cursor: pointer;
 }
 
 
 header {
-  box-sizing: border-box;
+  
   grid-area: 1 / 2 / 2 / 3;
-  min-height: 70px;
+  max-height: min-content;
+  min-height: 60px;
   background-color: rgb(223, 223, 223);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 0 10px 0;
+  padding: 10px 10px;
   box-shadow: 2px 0 5px -2px black;
 }
 
 header span {
   display: flex;
-  margin-right: 20px;
 }
 
 header span h2 {
-  font-size: 40px;
+  font-size: 35px;
   margin: auto;
 }
 
@@ -165,18 +187,18 @@ header span img {
 .addProjectHeader > p,
 header h2,
 header h3,
-#radioselectors {
+.radioselectors {
   font-family: "ChakraPetch", "Times New Roman", Times, serif;
 }
 
 .returnbutton {
   border: none;
   padding: 10px;
-  margin-left: 20px;
   border-radius: 5px;
   font-size: 20px;
   font-weight: bold;
   background-color: rgba(0, 181, 0, 0.8);
+  transition: all 200ms
 }
 
 main {
@@ -477,17 +499,20 @@ textarea {
 .projectDiv > div:first-child {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   overflow: auto;
 }
 
 .projectDiv > div:first-child h3 {
-  font-size: large;
+  font-size: 15px;
   padding-bottom: 10px;
-  box-sizing: border-box;
+  max-width: 250px;
+  margin-right: 10px;
+  word-break: break-word;
 }
 
 .projectDiv > div:first-child p {
-  margin-bottom: 15px;
+  padding-bottom: 10px;
   text-align: right;
   position: sticky;
 }
@@ -511,6 +536,7 @@ textarea {
   background-color: rgba(0, 181, 0, 0.8);
 }
 
+.returnbutton:hover,
 .projectDiv > div:nth-child(2) button:first-child:hover {
   background-color: rgb(0, 92, 0);
   color: white;
@@ -558,9 +584,10 @@ textarea {
 }
 
 .toDoItem > label {
-  width: 340px;
+  width: 200px;
   font-size: 23px;
   padding-right: 25px;
+  word-break: break-word;
   font-family: "caveat";
 }
 
@@ -587,9 +614,12 @@ textarea {
 .headerspacer {
   justify-content: space-between;
   gap: 20px;
+  
 }
 
 .fontadjuster {
   font-size: 25px;
   font-weight: bold;
+  word-break: break-word;
+  max-width: 350px;
 }

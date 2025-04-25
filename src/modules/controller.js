@@ -97,10 +97,13 @@ const modifyProject = function (
 };
 
 const filterByDueDate = function (timeFrame) {
+
+  let filteredList;
+
   switch (timeFrame) {
     case "all":
       displayObj.addProjectsToDom(fetchedProjects);
-      break;
+      return;
     case "today":
       filterToday();
       break;
@@ -114,29 +117,28 @@ const filterByDueDate = function (timeFrame) {
 
   function filterToday() {
     let today = format(new Date(), "yyyy-MM-dd");
-    let filteredList = fetchedProjects.filter(
+    filteredList = fetchedProjects.filter(
       (project) => project.getProject().dueDate == today,
     );
-    displayObj.addProjectsToDom(filteredList);
-  }
+  };
 
   function filterThisWeek() {
-    let filteredList = fetchedProjects.filter(
+    filteredList = fetchedProjects.filter(
       (project) =>
         isThisWeek(new Date(project.getProject().dueDate), {
           weekStartsOn: 1,
         }) == true,
     );
-    displayObj.addProjectsToDom(filteredList);
-  }
+  };
 
   function filterThisMonth() {
-    let filteredList = fetchedProjects.filter(
+    filteredList = fetchedProjects.filter(
       (project) =>
         isThisMonth(new Date(project.getProject().dueDate)) == true,
     );
-    displayObj.addProjectsToDom(filteredList);
-  }
+  };
+
+  displayObj.addProjectsToDom(filteredList);
 };
 
 const addToDoToProject = function (inputvalue, selectedProject) {
@@ -195,8 +197,6 @@ const removeProject = function (projectDom) {
   resetProjectsNums();
 
   saveData();
-
-  displayObj.addProjectsToDom(fetchedProjects);
 
   function resetProjectsNums() {
     displayObj.domIndex.resetIndex();

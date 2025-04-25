@@ -53,7 +53,7 @@ const displayHandler = function () {
 
   const filtersWrapper = document.querySelector('.filterWrapper')
   const openFilter = document.querySelector('.filterWrapper button');
-  const filtersParent = document.querySelector('#radioselectors')
+  const filtersParent = document.querySelector('.radioselectors')
   const filters = document.querySelectorAll('input[type="radio"]');
 
   const content = document.querySelector("main");
@@ -144,9 +144,9 @@ const displayHandler = function () {
   });
 
   openFilter.addEventListener('click', () => {
-    filtersParent.classList.toggle('hide2')
     if (openFilter.textContent == 'Filter +') openFilter.textContent = 'Filter -';
     else openFilter.textContent = 'Filter +';
+    filtersParent.classList.toggle('slideIntoView');
   });
 
   filters.forEach((filter) => {
@@ -355,7 +355,7 @@ const displayHandler = function () {
       const title = document.createElement("h3");
       title.textContent = project.getProject().title;
 
-      const dueDate = document.createElement("p");
+      const dueDate = document.createElement("h3");
       dueDate.textContent = `Due Date: ${project.getProject().dueDate}`;
 
       titleDueDate.append(title, dueDate);
@@ -377,10 +377,10 @@ const displayHandler = function () {
         //empty parent container from project-elements, before refreshing with up-to-date to-dos
         content.textContent = "";
 
+        filtersWrapper.classList.add('hide2');
         let projectHeader = clickedToDosParent.getParent().querySelector('div:first-child h3').textContent
 
         headerStateTransformer(projectHeader);
-
         getProjectToDos(e.target.parentNode.parentNode);
       });
 
@@ -401,9 +401,9 @@ const displayHandler = function () {
 
       deleteProjectButton.addEventListener("click", (e) => {
         if (window.confirm("Confirm project deletion")) {
-          // with e.target.parentNode.parentNode we are accessing
-          // the grandparent-node of the delete-button,
-          // which is the projectDiv element
+          /* with e.target.parentNode.parentNode we are accessing
+           the grandparent-node of the delete-button,
+           which is the projectDiv element */
           if (projectNum.getNum() !== 0) {
             projectNum.decreaseNum();
           }
@@ -411,7 +411,7 @@ const displayHandler = function () {
 
           updateToDoFooter(fetchedProjects);
           projectsToOptions(fetchedProjects);
-          filters[0].checked = true;
+          filters[0].click();
         }
       });
 
@@ -427,7 +427,7 @@ const displayHandler = function () {
 
   const addToDosToDom = function (projectToDos) {
     content.textContent = "";
-    filtersWrapper.classList.add('hide2');
+    
 
     domIndex.resetIndex();
 
@@ -497,7 +497,7 @@ const displayHandler = function () {
     }
   };
 
-  //hide the return button when the page first loads
+  //hide the return button and filters when the page first loads
   returnButton.classList.add('hide');
 
   return {
