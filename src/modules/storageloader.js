@@ -1,4 +1,4 @@
-import { restoreProject, fetchedProjects } from "./controller";
+import { restoreProject } from "./controller";
 
 function storage() {
   const dataSaver = function (projects) {
@@ -33,9 +33,7 @@ function storage() {
         task.project.numOfProject,
         task.toDos,
       );
-    }
-    displayObj.addProjectsToDom(fetchedProjects);
-    displayObj.projectsToOptions(fetchedProjects);
+    };
   };
 
   return { dataSaver, dataGetter };

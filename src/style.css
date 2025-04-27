@@ -72,14 +72,23 @@ aside {
   text-align: center;
   font-size: 20px;
   transform: scaleY(0);
-  transition: transform 200ms ease-out;
+  opacity: 0;
+  transition: transform 300ms, opacity 300ms, display 300ms allow-discrete;
   transform-origin: top;
-  pointer-events: none;
+  display: none;
 }
 
 .radioselectors.slideIntoView {
+  display: block;
+  opacity: 1;
   transform: scaleY(1);
-  pointer-events: all;
+}
+
+@starting-style {
+  .radioselectors.slideIntoView {
+    opacity: 0;
+    transform: scaleY(0);
+  }
 }
 
 input[type="radio"] {
@@ -103,6 +112,7 @@ input[type="radio"] {
   max-height: 50%;
 }
 
+.sortWrapper button,
 .filterWrapper button,
 .addproject {
   background-color: white;
@@ -135,6 +145,14 @@ input[type="radio"] {
 
 .filterWrapper button:hover {
   transition: all 200ms;
+}
+
+.filterWrapper {
+  margin-bottom: 10px;
+}
+
+.sortWrapper {
+  margin-bottom: auto;
 }
 
 .addproject svg {
@@ -216,7 +234,7 @@ main {
 footer {
   display: flex;
   grid-area: 3 / 2 / 4 / 3;
-  padding: 20px;
+  padding: 10px;
   background-color: rgb(223, 223, 223);
   box-shadow: 2px 0 5px -2px black;
   justify-content: center;
@@ -247,8 +265,8 @@ footer {
   margin: 0;
   justify-content: space-around;
   box-sizing: border-box;
-  padding: 15px;
-  gap: 15px;
+  padding: 10px;
+  gap: 10px;
   background-color: white;
 }
 

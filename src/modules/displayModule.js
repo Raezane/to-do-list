@@ -2,7 +2,8 @@ import { format } from "date-fns";
 //import { storage } from "./storageloader";
 import trashcan from "../images/trashcan.svg";
 import { 
-  fetchedProjects, 
+  getOriginalOrderOfProjects,
+  getCurrentlyOrderedProjects, 
   createProject, 
   modifyProject, 
   addToDoToProject, 
@@ -96,11 +97,12 @@ const displayHandler = function () {
         );
         modalForm.reset();
         projectNum.increaseNum();
+        projectsToOptions(getCurrentlyOrderedProjects());
         /* if modal is opened from existing project details-button and project info is then
         edited and saved, modify the clicked project details to set the new entered values */
       } else
         modifyProject(
-          setDetailsButtonProject.getButton(),
+          projectDetailsToButton.getButton(),
           projectTitle.value,
           projectDescription.value,
           projectDueDate.value,
@@ -108,7 +110,6 @@ const displayHandler = function () {
           projectPriority.value,
         );
 
-      projectsToOptions(fetchedProjects);
       projectsaver.close();
       resetFilterSelection(filters);
     };
@@ -136,8 +137,8 @@ const displayHandler = function () {
       addToDoForm.reset();
       projectSelector.selectedIndex = -1;
 
-      if (!(clickedToDosParent.getParent() == undefined)) {
-        getProjectToDos(clickedToDosParent.getParent());
+      if (!(toDosParent.getParent() == undefined)) {
+        getProjectToDos(toDosParent.getParent());
       }
       addToDoAnimate();
     }
@@ -157,8 +158,8 @@ const displayHandler = function () {
   });
 
   returnButton.addEventListener("click", () => {
-    clickedToDosParent.setParent(undefined);
-    addProjectsToDom(fetchedProjects);
+    toDosParent.setParent(undefined);
+    addProjectsToDom(getOriginalOrderOfProjects());
     headerStateTransformer('Projects');
     resetFilterSelection(filters);
   });
@@ -261,7 +262,7 @@ const displayHandler = function () {
     }
   }
 
-  const setDetailsButtonProject = (function (detailsButton) {
+  const detailsToProjectConfigurer = function () {
     let pressedDetailsButtonProject;
 
     const setButton = (detailsButton) =>
@@ -269,9 +270,9 @@ const displayHandler = function () {
     const getButton = () => pressedDetailsButtonProject;
 
     return { setButton, getButton };
-  })();
+  };
 
-  const projectNum = (function () {
+  const projectNumConfigurer = function () {
     let num = 0;
 
     const setNum = (givenNum) => (num = givenNum);
@@ -281,9 +282,9 @@ const displayHandler = function () {
     const getNum = () => num;
 
     return { setNum, increaseNum, decreaseNum, getNum };
-  })();
+  };
 
-  const domIndex = (function () {
+  const domIndexer = function () {
     let index = 0;
 
     const increaseIndex = () => index++;
@@ -292,16 +293,16 @@ const displayHandler = function () {
     const getIndex = () => index;
 
     return { increaseIndex, resetIndex, getIndex };
-  })();
+  };
 
-  const clickedToDosParent = (function () {
+  const toDosParentConfigurer = function () {
     let clickedProjectToDos;
 
     const setParent = (projectDiv) => (clickedProjectToDos = projectDiv);
     const getParent = () => clickedProjectToDos;
 
     return { setParent, getParent };
-  })();
+  };
 
   function updateToDoFooter(tasks) {
     if (tasks.length > 0) {
@@ -340,7 +341,7 @@ const displayHandler = function () {
     filtersWrapper.classList.remove('hide2');
 
     //add "Add to-do" bar, if there are projects available
-    updateToDoFooter(fetchedProjects);
+    updateToDoFooter(tasks);
 
     tasks.forEach((project) => {
       const projectDiv = document.createElement("div");
@@ -373,12 +374,12 @@ const displayHandler = function () {
 
       seeToDosButton.addEventListener("click", (e) => {
         //save which project's 'Open ToDos' was clicked
-        clickedToDosParent.setParent(e.target.parentNode.parentNode);
+        toDosParent.setParent(e.target.parentNode.parentNode);
         //empty parent container from project-elements, before refreshing with up-to-date to-dos
         content.textContent = "";
 
         filtersWrapper.classList.add('hide2');
-        let projectHeader = clickedToDosParent.getParent().querySelector('div:first-child h3').textContent
+        let projectHeader = toDosParent.getParent().querySelector('div:first-child h3').textContent
 
         headerStateTransformer(projectHeader);
         getProjectToDos(e.target.parentNode.parentNode);
@@ -387,7 +388,7 @@ const displayHandler = function () {
       seeDetailsButton.addEventListener("click", (e) => {
         let pressedButtonProject = e.target.parentNode.parentNode;
 
-        setDetailsButtonProject.setButton(pressedButtonProject);
+        projectDetailsToButton.setButton(pressedButtonProject);
 
         projectsaver.showModal();
         minDateToday();
@@ -409,8 +410,8 @@ const displayHandler = function () {
           }
           removeProject(e.target.parentNode.parentNode);
 
-          updateToDoFooter(fetchedProjects);
-          projectsToOptions(fetchedProjects);
+          updateToDoFooter(tasks);
+          projectsToOptions(tasks);
           filters[0].click();
         }
       });
@@ -460,20 +461,20 @@ const displayHandler = function () {
 
       deleteIcon.addEventListener("click", (e) => {
         toDoRemove(
-          clickedToDosParent.getParent(),
+          toDosParent.getParent(),
           e.target.parentNode.getAttribute("index-number"),
         );
       });
 
       toDoCheck.addEventListener("click", (e) => {
         toDoChecked(
-          clickedToDosParent.getParent(),
+          toDosParent.getParent(),
           e.target.parentNode.getAttribute("index-number"),
         );
 
         if (
           toDoDoneOrNot(
-            clickedToDosParent.getParent(),
+            toDosParent.getParent(),
             e.target.parentNode.getAttribute("index-number"),
           )
         ) {
@@ -496,6 +497,11 @@ const displayHandler = function () {
       }
     }
   };
+
+  const domIndex = domIndexer();
+  const projectDetailsToButton = detailsToProjectConfigurer();
+  const projectNum = projectNumConfigurer();
+  const toDosParent = toDosParentConfigurer();
 
   //hide the return button and filters when the page first loads
   returnButton.classList.add('hide');
