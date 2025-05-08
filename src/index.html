@@ -8,7 +8,7 @@
   <body>
     <div class="allwrapper">
       <aside>
-        <div class="filterWrapper">
+        <div class="filterSortWrapper">
           <button>Filter +</button>
           <div class="radioselectors">
             <label>
@@ -33,10 +33,29 @@
             </label>
           </div>
         </div>
-        <div class="sortWrapper">
-          <button>Sort +</button>
+        <div class="filterSortWrapper">
+          <button>Sort by +</button>
           <div class="radioselectors">
-            
+            <label>
+              <input type="radio" id="default" name="sort" value="Default" checked />
+              Default
+            </label>
+            <label>
+              <input type="radio" id="duedate" name="sort" value="Due date" />
+              Due date
+            </label>
+            <label>
+              <input type="radio" id="name" name="sort" value="Name" />
+              Name
+            </label>
+            <label>
+              <input type="radio" id="to-dos" name="sort" value="To-Dos" />
+              To-Dos
+            </label>
+            <label>
+              <input type="radio" id="prioritylevel" name="sort" value="Prioritylevel" />
+              Priority
+            </label>
           </div>
         </div>
         <button class="addproject">

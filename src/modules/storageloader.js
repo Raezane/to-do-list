@@ -4,27 +4,30 @@ function storage() {
   const dataSaver = function (projects) {
     const copy = [];
 
-    projects.forEach((item) => {
+    for (const [key, value] of Object.entries(projects)) {
       let projectObject = {};
 
-      projectObject["project"] = item.getProject();
-      projectObject["toDos"] = item
+      console.log(projects[key])
+      projectObject["id"] = key;
+      projectObject["project"] = projects[key].getProject();
+      projectObject["toDos"] = projects[key]
         .getToDos()
         .map((todo) => [todo.getToDo(), todo.checkIfDone()]);
 
       copy.push(projectObject);
-    });
+    };
 
     const tasksJSON = JSON.stringify(copy);
 
-    localStorage.setItem("projects", tasksJSON);
+    localStorage.setItem("tasks", tasksJSON);
   };
 
-  const dataGetter = function (displayObj) {
-    const parsedTasks = JSON.parse(localStorage.getItem("projects"));
+  const dataGetter = function () {
+    const parsedTasks = JSON.parse(localStorage.getItem("tasks"));
 
     for (const task of parsedTasks) {
       restoreProject(
+        task.id,
         task.project.title,
         task.project.description,
         task.project.dueDate,

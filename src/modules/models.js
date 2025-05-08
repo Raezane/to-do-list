@@ -1,18 +1,17 @@
 function allTasks() {
-  const projects = [];
+  const tasksObj = {};
 
-  const getProjects = () => projects;
+  const getTasks = () => tasksObj;
 
-  const addToProjects = function (project) {
-    projects.push(project);
+  const addToTasks = function (projectID, project) {
+    tasksObj[projectID] = project;
   };
 
-  const deleteProject = function (project) {
-    let projectToDelete = projects.indexOf(project);
-    projects.splice(projectToDelete, 1);
+  const deleteTask = function (taskID) {
+    delete tasksObj[taskID]
   };
 
-  return { getProjects, addToProjects, deleteProject };
+  return { getTasks, addToTasks, deleteTask };
 }
 
 function projectHandler(
@@ -21,7 +20,6 @@ function projectHandler(
   dueDate,
   notes,
   priority,
-  numOfProject,
 ) {
   const project = {
     title,
@@ -29,7 +27,6 @@ function projectHandler(
     dueDate,
     notes,
     priority,
-    numOfProject,
     done: false,
   };
 

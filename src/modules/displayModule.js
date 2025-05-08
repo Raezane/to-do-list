@@ -2,13 +2,13 @@ import { format } from "date-fns";
 //import { storage } from "./storageloader";
 import trashcan from "../images/trashcan.svg";
 import { 
-  getOriginalOrderOfProjects,
-  getCurrentlyOrderedProjects, 
+  getFetchedTasks,
   createProject, 
   modifyProject, 
   addToDoToProject, 
   getProjectToDos, 
-  filterByDueDate, 
+  setFilter, 
+  setSorter,
   getValues, 
   removeProject,
   toDoRemove, 
@@ -52,14 +52,22 @@ const displayHandler = function () {
   );
   const addedFloat = document.querySelector(".addToDoButtons span");
 
-  const filtersWrapper = document.querySelector('.filterWrapper')
-  const openFilter = document.querySelector('.filterWrapper button');
-  const filtersParent = document.querySelector('.radioselectors')
-  const filters = document.querySelectorAll('input[type="radio"]');
+  const filterSortWrapper = document.querySelectorAll('.filterSortWrapper');
+
+  const openFilter = document.querySelector('.filterSortWrapper:first-child button');
+  const filtersParent = document.querySelector('.filterSortWrapper:first-child .radioselectors');
+  const filters = document.querySelectorAll('.filterSortWrapper:first-child input[type="radio"]');
+
+  const openSorter = document.querySelector('.filterSortWrapper:nth-child(2) button');
+  const sortsParent = document.querySelector('.filterSortWrapper:nth-child(2) .radioselectors');
+  const sorters = document.querySelectorAll('.filterSortWrapper:nth-child(2) input[type="radio"]');
 
   const content = document.querySelector("main");
 
+  let addingNewProject = true;
+
   addproject.addEventListener("click", () => {
+    addingNewProject = true;
     //reset modal form, if modal is opened from "see details" fron already existing project
     modalForm.reset();
     projectsaver.showModal();
@@ -86,33 +94,41 @@ const displayHandler = function () {
 
   addSaveProject.addEventListener("click", (e) => {
     e.preventDefault();
-    if (projectValidity()) {
-      if (addSaveProject.textContent === "Add Project") {
-        createProject(
-          projectTitle.value,
-          projectDescription.value,
-          projectDueDate.value,
-          projectNotes.value,
-          projectPriority.value,
-        );
-        modalForm.reset();
-        projectNum.increaseNum();
-        projectsToOptions(getCurrentlyOrderedProjects());
-        /* if modal is opened from existing project details-button and project info is then
-        edited and saved, modify the clicked project details to set the new entered values */
-      } else
-        modifyProject(
-          projectDetailsToButton.getButton(),
-          projectTitle.value,
-          projectDescription.value,
-          projectDueDate.value,
-          projectNotes.value,
-          projectPriority.value,
-        );
+    let validity = projectValidity()
+    if (validity) {
+      if (addingNewProject) {
+          createProject(
+            projectTitle.value,
+            projectDescription.value,
+            projectDueDate.value,
+            projectNotes.value,
+            projectPriority.value,
+          );
+          modalForm.reset();
+          //projectNum.increaseNum();
 
-      projectsaver.close();
-      resetFilterSelection(filters);
+          /* if modal is opened from existing project details-button and project info is then
+          edited and saved, modify the clicked project details to set the new entered values */
+        } else {
+          modifyProject(
+            projectIdSetter.getClickedProjectID(),
+            projectTitle.value,
+            projectDescription.value,
+            projectDueDate.value,
+            projectNotes.value,
+            projectPriority.value,
+          )};
+
+        projectsaver.close();
+        projectsToOptions(getFetchedTasks());
+        resetFilterSelection(filters);
     };
+  });
+
+  //hide the validator message in add project modal as soon as user starts typing again
+  projectTitle.addEventListener('input', () => {
+    projectTitle.setCustomValidity('');
+    projectTitle.reportValidity();
   });
 
   addToDo.addEventListener("click", () => {
@@ -128,15 +144,19 @@ const displayHandler = function () {
 
   addToDoAdd.addEventListener("click", () => {
     if (toDoValidity()) {
+
+      //let selectedProject = document.querySelector('.projectDiv')
+      let selectedTaskId = projectSelector.options[projectSelector.selectedIndex].dataset.projectid
       addToDoToProject(
-        toDoInput.value,
-        projectSelector.selectedIndex,
+        selectedTaskId,
+        toDoInput.value
       );
 
       //when "Add" is clicked, also empty the selector from default value to being 'blank'
       addToDoForm.reset();
       projectSelector.selectedIndex = -1;
 
+      //if view if currently in the projects' to-dos, update the view live
       if (!(toDosParent.getParent() == undefined)) {
         getProjectToDos(toDosParent.getParent());
       }
@@ -145,40 +165,66 @@ const displayHandler = function () {
   });
 
   openFilter.addEventListener('click', () => {
-    if (openFilter.textContent == 'Filter +') openFilter.textContent = 'Filter -';
-    else openFilter.textContent = 'Filter +';
-    filtersParent.classList.toggle('slideIntoView');
+    sorterAndFilterTextSetter(openFilter, filtersParent, 'Filter')
+  });
+
+  openSorter.addEventListener('click', () => {
+    sorterAndFilterTextSetter(openSorter, sortsParent, 'Sort by')
   });
 
   filters.forEach((filter) => {
     filter.addEventListener("click", (e) => {
-      filterColour(e, filters);
-      filterByDueDate(e.target.id);
+      filterAndSortColor(e, filters);
+      setFilter(e.target.id);
+    });
+  });
+
+  sorters.forEach((sorter) => {
+    sorter.addEventListener("click", (e) => {
+      filterAndSortColor(e, sorters);
+      setSorter(e.target.id);
     });
   });
 
   returnButton.addEventListener("click", () => {
     toDosParent.setParent(undefined);
-    addProjectsToDom(getOriginalOrderOfProjects());
+    addProjectsToDom(getFetchedTasks());
     headerStateTransformer('Projects');
-    resetFilterSelection(filters);
+    //resetFilterSelection(filters);
   });
 
+  function sorterAndFilterTextSetter(radioOpener, radiosParent, filterOrSorter) {
+    if (radioOpener.textContent == `${filterOrSorter} +`) radioOpener.textContent = `${filterOrSorter} -`;
+    else radioOpener.textContent = `${filterOrSorter} +`;
+    radiosParent.classList.toggle('slideIntoView');
+  }
+
   function projectValidity() {
+
+    function validatorTexter(inputToInform, text) {
+      inputToInform.setCustomValidity(text);
+      inputToInform.reportValidity();
+    }
+
     if (projectTitle.value == "") {
-      projectTitle.setCustomValidity("Set Project name!");
-      projectTitle.reportValidity();
+      validatorTexter(projectTitle, "Set Project name!");
       return false;
     }
+
+    /*if (nameAlreadyExists(title)) {
+      validatorTexter(projectTitle, "Project with that name already exists!")
+      return false
+    }*/
+
     if (projectDueDate.value == "") {
-      projectDueDate.setCustomValidity("Due date required.");
-      projectDueDate.reportValidity();
+      validatorTexter(projectDueDate, "Due date required.")
       return false;
     }
+
     return true;
   }
 
-  function filterColour(e, filterButtons) {
+  function filterAndSortColor(e, filterButtons) {
     let clickedRadio = e.target.parentNode;
     emptyFilterColor(filterButtons);
     clickedRadio.style.backgroundColor = "rgba(155, 155, 155, 0.356)";
@@ -217,13 +263,14 @@ const displayHandler = function () {
     //first empty all existing option-elements from select-element
     projectSelector.textContent = "";
 
-    allprojects.forEach((project) => {
+    for (const [key, value] of Object.entries(allprojects)) {
       const optionValue = document.createElement("option");
-      optionValue.value = project.getProject().title;
-      optionValue.textContent = project.getProject().title;
+      optionValue.value = allprojects[key].getProject().title;
+      optionValue.textContent = allprojects[key].getProject().title;
+      optionValue.dataset.projectid = key
 
       projectSelector.append(optionValue);
-    });
+    };
   }
 
   function changeViewToMain() {
@@ -236,55 +283,46 @@ const displayHandler = function () {
     return content.childNodes.length > 0 && content.childNodes[0].classList.contains('projectDiv')
   }
 
-  function updateProjectDiv(selectedProject, numOfToDos) {
+
+  function updateProjectDiv(selectedTaskId, numOfToDos) {
     if (isMainPageCurrentlyInView()) {
-      content.childNodes[selectedProject].childNodes[1].childNodes[0].textContent = `Open To-Dos (${numOfToDos})`
+
+      let domProject = document.querySelector(`[data-projectid="${selectedTaskId}"]`)
+      domProject.childNodes[1].childNodes[0].textContent = `Open To-Dos (${numOfToDos})`
     };
   };
 
   function minDateToday() {
     const today = format(new Date(), "yyyy-MM-dd");
     datepicker.min = today;
-  }
+  };
 
   function addToDoAnimate() {
     addedFloat.classList.add("spanAnimate");
     setTimeout(() => {
       addedFloat.classList.remove("spanAnimate");
     }, 1500);
-  }
+  };
 
   function colorByPriority(projectDiv, priorityValue) {
     if (priorityValue == "High") {
       projectDiv.style.backgroundColor = "#fecaca";
     } else if (priorityValue == "Medium") {
       projectDiv.style.backgroundColor = "#fef08a";
-    }
-  }
+    };
+  };
 
   const detailsToProjectConfigurer = function () {
     let pressedDetailsButtonProject;
 
-    const setButton = (detailsButton) =>
+    const setClickedProjectID = (detailsButton) =>
       (pressedDetailsButtonProject = detailsButton);
-    const getButton = () => pressedDetailsButtonProject;
+    const getClickedProjectID = () => pressedDetailsButtonProject;
 
-    return { setButton, getButton };
+    return { setClickedProjectID, getClickedProjectID };
   };
 
-  const projectNumConfigurer = function () {
-    let num = 0;
-
-    const setNum = (givenNum) => (num = givenNum);
-    const increaseNum = () => num++;
-    const decreaseNum = () => num--;
-
-    const getNum = () => num;
-
-    return { setNum, increaseNum, decreaseNum, getNum };
-  };
-
-  const domIndexer = function () {
+  const toDoIndexer = function () {
     let index = 0;
 
     const increaseIndex = () => index++;
@@ -293,7 +331,7 @@ const displayHandler = function () {
     const getIndex = () => index;
 
     return { increaseIndex, resetIndex, getIndex };
-  };
+  }; 
 
   const toDosParentConfigurer = function () {
     let clickedProjectToDos;
@@ -305,7 +343,7 @@ const displayHandler = function () {
   };
 
   function updateToDoFooter(tasks) {
-    if (tasks.length > 0) {
+    if (Object.keys(tasks).length > 0) {
       if (
         addToDoForm.style.display == "none" ||
         addToDoForm.style.display == ""
@@ -334,37 +372,32 @@ const displayHandler = function () {
 
   const addProjectsToDom = function (tasks) {
     //first empty parent container from project-elements, before refreshing with up-to-date projects
-    //also reset index-calculator of dom-project elements
     content.textContent = "";
-    domIndex.resetIndex();
 
-    filtersWrapper.classList.remove('hide2');
+    filterSortWrapper.forEach((element) => element.classList.remove('hide2'))
 
     //add "Add to-do" bar, if there are projects available
     updateToDoFooter(tasks);
 
-    tasks.forEach((project) => {
+    for (const [key, value] of Object.entries(tasks)) {
       const projectDiv = document.createElement("div");
       projectDiv.classList.add("projectDiv");
-      projectDiv.setAttribute(
-        "index-number",
-        project.getProject().numOfProject,
-      );
+      projectDiv.dataset.projectid = key
 
       const titleDueDate = document.createElement("div");
 
       const title = document.createElement("h3");
-      title.textContent = project.getProject().title;
+      title.textContent = tasks[key].getProject().title;
 
       const dueDate = document.createElement("h3");
-      dueDate.textContent = `Due Date: ${project.getProject().dueDate}`;
+      dueDate.textContent = `Due Date: ${tasks[key].getProject().dueDate}`;
 
       titleDueDate.append(title, dueDate);
 
       const options = document.createElement("div");
 
       const seeToDosButton = document.createElement("button");
-      seeToDosButton.textContent = `Open To-Dos (${project.getToDos().length})`;
+      seeToDosButton.textContent = `Open To-Dos (${tasks[key].getToDos().length})`;
 
       const seeDetailsButton = document.createElement("button");
       seeDetailsButton.textContent = "Details & Edit";
@@ -378,22 +411,26 @@ const displayHandler = function () {
         //empty parent container from project-elements, before refreshing with up-to-date to-dos
         content.textContent = "";
 
-        filtersWrapper.classList.add('hide2');
-        let projectHeader = toDosParent.getParent().querySelector('div:first-child h3').textContent
+        filterSortWrapper.forEach((element) => element.classList.add('hide2'))
+        
+        let projectHeader = toDosParent.getParent().querySelector('div:first-child h3').textContent;
 
         headerStateTransformer(projectHeader);
-        getProjectToDos(e.target.parentNode.parentNode);
+        getProjectToDos(key);
       });
 
       seeDetailsButton.addEventListener("click", (e) => {
-        let pressedButtonProject = e.target.parentNode.parentNode;
 
-        projectDetailsToButton.setButton(pressedButtonProject);
+        addingNewProject = false;
+
+        let pressedButtonTaskId = e.target.closest('.projectDiv').dataset.projectid
+
+        projectIdSetter.setClickedProjectID(pressedButtonTaskId);
 
         projectsaver.showModal();
         minDateToday();
 
-        let values = getValues(pressedButtonProject);
+        let values = getValues(pressedButtonTaskId);
         setValuesToModal(values);
 
         addSaveProject.textContent = "Save";
@@ -402,35 +439,23 @@ const displayHandler = function () {
 
       deleteProjectButton.addEventListener("click", (e) => {
         if (window.confirm("Confirm project deletion")) {
-          /* with e.target.parentNode.parentNode we are accessing
-           the grandparent-node of the delete-button,
-           which is the projectDiv element */
-          if (projectNum.getNum() !== 0) {
-            projectNum.decreaseNum();
-          }
-          removeProject(e.target.parentNode.parentNode);
-
-          updateToDoFooter(tasks);
+          removeProject(key);
           projectsToOptions(tasks);
-          filters[0].click();
         }
       });
 
       options.append(seeToDosButton, seeDetailsButton, deleteProjectButton);
 
       projectDiv.append(titleDueDate, options);
-      colorByPriority(projectDiv, project.getProject().priority);
+      colorByPriority(projectDiv, tasks[key].getProject().priority);
       content.append(projectDiv);
-
-      domIndex.increaseIndex();
-    });
+    };
   };
 
   const addToDosToDom = function (projectToDos) {
     content.textContent = "";
     
-
-    domIndex.resetIndex();
+    toDoIndex.resetIndex();
 
     const ulList = document.createElement("ul");
     ulList.classList.add("toDoList");
@@ -438,7 +463,7 @@ const displayHandler = function () {
     projectToDos.forEach((toDo) => {
       const listItem = document.createElement("li");
       listItem.classList.add("toDoItem");
-      listItem.setAttribute("index-number", domIndex.getIndex());
+      listItem.dataset.indexnum = toDoIndex.getIndex();
 
       const toDoText = document.createElement("label");
       const toDoCheck = document.createElement("input");
@@ -449,11 +474,11 @@ const displayHandler = function () {
 
       toDoText.textContent = toDo.getToDo();
 
-      toDoText.setAttribute("for", `toDoItem${domIndex.getIndex()}`);
+      toDoText.setAttribute("for", `toDoItem${toDoIndex.getIndex()}`);
 
       toDoCheck.setAttribute("type", "checkbox");
-      toDoCheck.setAttribute("id", `toDoItem${domIndex.getIndex()}`);
-      toDoCheck.setAttribute("name", `toDoItem${domIndex.getIndex()}`);
+      toDoCheck.setAttribute("id", `toDoItem${toDoIndex.getIndex()}`);
+      toDoCheck.setAttribute("name", `toDoItem${toDoIndex.getIndex()}`);
 
       listItem.append(toDoText, deleteIcon, toDoCheck);
 
@@ -461,21 +486,21 @@ const displayHandler = function () {
 
       deleteIcon.addEventListener("click", (e) => {
         toDoRemove(
-          toDosParent.getParent(),
-          e.target.parentNode.getAttribute("index-number"),
+          toDosParent.getParent().dataset.projectid,
+          e.target.closest('.toDoItem').dataset.indexnum,
         );
       });
 
       toDoCheck.addEventListener("click", (e) => {
         toDoChecked(
-          toDosParent.getParent(),
-          e.target.parentNode.getAttribute("index-number"),
+          toDosParent.getParent().dataset.projectid,
+          e.target.closest('.toDoItem').dataset.indexnum,
         );
 
         if (
           toDoDoneOrNot(
-            toDosParent.getParent(),
-            e.target.parentNode.getAttribute("index-number"),
+            toDosParent.getParent().dataset.projectid,
+            e.target.closest('.toDoItem').dataset.indexnum,
           )
         ) {
           e.target.checked = true;
@@ -485,7 +510,7 @@ const displayHandler = function () {
             "rgba(223, 223, 223, 0.706)";
       });
 
-      domIndex.increaseIndex();
+      toDoIndex.increaseIndex();
 
       content.append(ulList);
     });
@@ -498,9 +523,8 @@ const displayHandler = function () {
     }
   };
 
-  const domIndex = domIndexer();
-  const projectDetailsToButton = detailsToProjectConfigurer();
-  const projectNum = projectNumConfigurer();
+  const toDoIndex = toDoIndexer();
+  const projectIdSetter = detailsToProjectConfigurer();
   const toDosParent = toDosParentConfigurer();
 
   //hide the return button and filters when the page first loads
@@ -508,8 +532,7 @@ const displayHandler = function () {
 
   return {
     projectsToOptions,
-    projectNum,
-    domIndex,
+    toDoIndex,
     changeViewToMain,
     isMainPageCurrentlyInView,
     updateProjectDiv,

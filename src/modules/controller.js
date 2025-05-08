@@ -1,23 +1,28 @@
 import { displayHandler } from "./displayModule";
 import { allTasks, projectHandler, toDoHandler } from "./models";
 import { storage } from "./storageloader";
-import { format, isThisWeek, isThisMonth } from "date-fns";
+import { format, isThisWeek, isThisMonth, isToday } from "date-fns";
 import { cloneDeep } from "lodash";
+import { v4 as v4uuid } from "uuid";
 
 let tasks;
 let displayObj;
 
-let fetchedProjects;
-let currentlyOrderedProjects;
+//we'll create an object, which has currently applied filters and sorts applied to the list of projects created.
+//By default when user opens the app or hasn't applied any filters or sorters, the values are true (returning tasks as default order and view)
+const appliedSortersAndFilters = {
+  'filter': () => true,
+  'sorter': () => true
+}
 
-const getOriginalOrderOfProjects = () => fetchedProjects;
-const getCurrentlyOrderedProjects = () => currentlyOrderedProjects;
+const getFetchedTasks = () => tasks.allTasks();
 
 function saveData() {
-  storage().dataSaver(fetchedProjects);
+  storage().dataSaver(tasks.getTasks());
 }
 
 const restoreProject = function (
+  id,
   title,
   description,
   dueDate,
@@ -35,12 +40,15 @@ const restoreProject = function (
     projectIndex,
   );
 
+  let taskID = id;
+
   for (const toDo of toDos) {
     let toDoRestorer = toDoHandler(toDo[0]);
     toDoRestorer.restoreDoneStatus(toDo[1]);
     project.addToDos(toDoRestorer);
-  }
-  tasks.addToProjects(project);
+  };
+  
+  tasks.addToTasks(taskID, project);
 };
 
 const createProject = function (
@@ -50,177 +58,175 @@ const createProject = function (
   notes,
   priority,
 ) {
-  /* check if localstorage has loaded projects in tasks-array already
-  and if it has, update the projectNum that will be used when creating
-  new projects to be the num of latest project + 1. Otherwise new projects
-  would be created from numOfProject = 0 all over again when page has been
-  refreshed, and bugs would occur. */
-  if (currentlyOrderedProjects.length > 0) {
-    displayObj.projectNum.setNum(
-      currentlyOrderedProjects[currentlyOrderedProjects.length - 1].getProject().numOfProject + 1,
-    );
-  }
-
+ 
+  //we'll create a unique ID for the task so we can access it with it later
+  let taskID = v4uuid();
+  
   const project = projectHandler(
     title,
     description,
     dueDate,
     notes,
     priority,
-    displayObj.projectNum.getNum(),
   );
-  tasks.addToProjects(project);
+  tasks.addToTasks(taskID, project);
   saveData();
 
-  displayObj.addProjectsToDom(fetchedProjects);
+  displayObj.addProjectsToDom(tasks.allTasks());
   displayObj.changeViewToMain();
 
 };
 
 const modifyProject = function (
-  projectDom,
+  id,
   title,
   description,
   dueDate,
   notes,
   priority,
 ) {
-  let foundProject = findProjectByNum(projectDom);
+  let foundProject = tasks.getTasks()[id].getProject();
 
-  foundProject.getProject().title = title;
-  foundProject.getProject().description = description;
-  foundProject.getProject().dueDate = dueDate;
-  foundProject.getProject().notes = notes;
-  foundProject.getProject().priority = priority;
+  foundProject.title = title;
+  foundProject.description = description;
+  foundProject.dueDate = dueDate;
+  foundProject.notes = notes;
+  foundProject.priority = priority;
 
   saveData();
-  displayObj.addProjectsToDom(currentlyOrderedProjects);
+  displayObj.addProjectsToDom(tasks.getTasks());
 };
 
-const filterByDueDate = function (timeFrame) {
+const setFilter = function(chosenFilter) {
 
-  let filteredList;
+  appliedSortersAndFilters['filter'] = getCorrectFilter(chosenFilter);
+  runFilterAndSorter();
+}
 
-  switch (timeFrame) {
-    case "all":
-      displayObj.addProjectsToDom(currentlyOrderedProjects);
-      return;
-    case "today":
-      filterToday();
-      break;
-    case "week":
-      filterThisWeek();
-      break;
-    case "month":
-      filterThisMonth();
-      break;
-  }
+const getCorrectFilter = function (chosenFilter) {
 
-  function filterToday() {
-    let today = format(new Date(), "yyyy-MM-dd");
-    filteredList = currentlyOrderedProjects.filter(
-      (project) => project.getProject().dueDate == today,
-    );
-  };
-
-  function filterThisWeek() {
-    filteredList = currentlyOrderedProjects.filter(
-      (project) =>
-        isThisWeek(new Date(project.getProject().dueDate), {
-          weekStartsOn: 1,
-        }) == true,
-    );
-  };
-
-  function filterThisMonth() {
-    filteredList = currentlyOrderedProjects.filter(
-      (project) =>
-        isThisMonth(new Date(project.getProject().dueDate)) == true,
-    );
-  };
-
-  displayObj.addProjectsToDom(filteredList);
+  if (chosenFilter == 'all') return () => true;
+  else if (chosenFilter == 'today') return filterToday;
+  else if (chosenFilter == 'week') return filterThisWeek;
+  else if (chosenFilter == 'month') return filterThisMonth;
 };
 
-const sortProjects = function() {
-
-  const sortByDate = (a, b) => 
-    new Date(a.getProject().dueDate) - new Date(b.getProject().dueDate);
-
-  const sortByname = (a, b) => {
-
-    const loweredCaseTitle = (obj) => obj.getProject().title.toLowerCase();
-
-    let nameA = loweredCaseTitle(a);
-    let nameB = loweredCaseTitle(b);
-    if (nameA < nameB) return -1;
-    if (nameA > nameB) return 1;
-    return 0;
-  };
-
-  const sortByTodos = (a, b) => {
-
-    const numOfTodos = (obj) => obj.getToDos().length;
-
-    let aTodos = numOfTodos(a);
-    let bTodos = numOfTodos(b);
-    if (aTodos < bTodos) return -1;
-    if (aTodos > bTodos) return 1;
-    return 0;
-  }
-
-  const sortByPriority = (a, b) => {
-
-    const getPriorityLevel = (obj) => obj.getProject().priority
-
-    const priorityLevel = {
-      'High': 1,
-      'Medium': 2,
-      'Low': 3
-    };
-
-    let projPriorityA = getPriorityLevel(a);
-    let projPriorityB = getPriorityLevel(b);
-
-    return priorityLevel[projPriorityA] - priorityLevel[projPriorityB]
-
-  };
-
-  currentlyOrderedProjects.sort(sortByPriority);
-  resetProjectsNums();
-  displayObj.projectsToOptions(currentlyOrderedProjects);
-  displayObj.addProjectsToDom(currentlyOrderedProjects);
-  //return {sortByDate, sortByname}
+function filterToday([key, value]) {
+  return isToday(new Date(value.getProject().dueDate)) == true  
 };
 
-const addToDoToProject = function (inputvalue, selectedProject) {
+function filterThisWeek([key, value]) {
+  return isThisWeek(new Date(value.getProject().dueDate), {
+    weekStartsOn: 1,
+  }) == true;
+};
+
+function filterThisMonth([key, value]) {
+  return isThisMonth(new Date(value.getProject().dueDate)) == true
+};
+
+const runFilterAndSorter = function() {
+  //convert object to array for filtering and sorting
+  let tasksToBeHandled = Object.entries(tasks.getTasks());
+  
+  tasksToBeHandled = tasksToBeHandled.filter(appliedSortersAndFilters['filter']);  
+  tasksToBeHandled.sort(appliedSortersAndFilters['sorter']);
+  
+  //covert filtered and sorted array back to object..
+  tasksToBeHandled = Object.fromEntries(tasksToBeHandled);
+  
+  //..and send them to DOM for display
+  displayObj.addProjectsToDom(tasksToBeHandled);
+  displayObj.projectsToOptions(tasksToBeHandled);
+};
+
+const setSorter = function(chosenSorter) {
+
+  appliedSortersAndFilters['sorter'] = getCorrectSorter(chosenSorter);
+  runFilterAndSorter();
+}
+
+const getCorrectSorter = function(chosenSorter) {
+  /*if sorting option 'default' is selected empty the currently applied sort by providing an empty 
+  function to object (appliedSortersAndFilters), whose functions we run each time when sorter or filters are applied */
+  if (chosenSorter == 'default') return function () {};
+  else if (chosenSorter == 'duedate') return sortByDueDate;
+  else if (chosenSorter == 'name') return sortByname;
+  else if (chosenSorter == 'to-dos') return sortByTodos;
+  else if (chosenSorter == 'prioritylevel') return sortByPriority;
+}
+
+const sortByDueDate = (a, b) => 
+  new Date(a[1].getProject().dueDate) - new Date(b[1].getProject().dueDate);
+
+const sortByname = (a, b) => {
+
+  const loweredCaseTitle = (obj) => obj.getProject().title.toLowerCase();
+
+  let nameA = loweredCaseTitle(a[1]);
+  let nameB = loweredCaseTitle(b[1]);
+  if (nameA < nameB) return -1;
+  if (nameA > nameB) return 1;
+  return 0;
+};
+
+const sortByTodos = (a, b) => {
+
+  const numOfTodos = (obj) => obj.getToDos().length;
+
+  let aTodos = numOfTodos(a[1]);
+  let bTodos = numOfTodos(b[1]);
+  if (aTodos > bTodos) return -1;
+  if (aTodos < bTodos) return 1;
+  return 0;
+}
+
+const sortByPriority = (a, b) => {
+
+  const getPriorityLevel = (obj) => obj.getProject().priority
+
+  const priorityLevel = {
+    'High': 1,
+    'Medium': 2,
+    'Low': 3
+  };
+
+  let projPriorityA = getPriorityLevel(a[1]);
+  let projPriorityB = getPriorityLevel(b[1]);
+
+  return priorityLevel[projPriorityA] - priorityLevel[projPriorityB]
+};
+
+const addToDoToProject = function (selectedTaskId, inputvalue) {
   const toDo = toDoHandler(inputvalue);
 
-  currentlyOrderedProjects[selectedProject].addToDos(toDo);
-  let numOfToDos = currentlyOrderedProjects[selectedProject].getToDos().length
-  saveData();
+  let projectToAddTo = tasks.getTasks()[selectedTaskId]
 
-  displayObj.updateProjectDiv(selectedProject, numOfToDos);
+  projectToAddTo.addToDos(toDo)
+
+  saveData();
+  let numOfToDos = projectToAddTo.getToDos().length
+
+  displayObj.updateProjectDiv(selectedTaskId, numOfToDos);
 };
 
-const getProjectToDos = function (projectDom) {
-  let foundProject = findProjectByNum(projectDom);
+const getProjectToDos = function (taskID) {
+  let foundProject = tasks.getTasks()[taskID];
   displayObj.addToDosToDom(
-    foundProject.getToDos(),
-    foundProject.getProject().title,
+    foundProject.getToDos()
   );
 };
 
-const toDoChecked = function (projectDom, toDoDomIndex) {
-  let foundProject = findProjectByNum(projectDom);
+const toDoChecked = function (taskID, toDoDomIndex) {
+  let foundProject = tasks.getTasks()[taskID];
 
   foundProject.getToDos()[toDoDomIndex].makeDoneOrUndone();
 
   saveData();
 };
 
-const toDoRemove = function (projectDom, toDoDomIndex) {
-  let foundProject = findProjectByNum(projectDom);
+const toDoRemove = function (taskID, toDoDomIndex) {
+  let foundProject = tasks.getTasks()[taskID];
 
   foundProject.deleteToDo(toDoDomIndex);
 
@@ -232,65 +238,40 @@ const toDoRemove = function (projectDom, toDoDomIndex) {
   );
 };
 
-const toDoDoneOrNot = function (projectDom, toDoDomIndex) {
-  let foundProject = findProjectByNum(projectDom);
+const toDoDoneOrNot = function (taskID, toDoDomIndex) {
+  let foundProject = tasks.getTasks()[taskID];
   return foundProject.getToDos()[toDoDomIndex].checkIfDone();
 };
 
-const getValues = function (projectDom) {
-  let foundProject = findProjectByNum(projectDom);
+const getValues = function (taskID) {
+  let foundProject = tasks.getTasks()[taskID]
   return foundProject.getProject();
 };
 
-const removeProject = function (projectDom) {
-  let foundProject = findProjectByNum(projectDom);
-
-  tasks.deleteProject(foundProject);
-  resetProjectsNums();
-
+const removeProject = function (taskID) {
+  tasks.deleteTask(taskID)
   saveData();
-};
-
-function resetProjectsNums() {
-  displayObj.domIndex.resetIndex();
-
-  currentlyOrderedProjects.forEach((project) => {
-    project.getProject().numOfProject = displayObj.domIndex.getIndex();
-    displayObj.domIndex.increaseIndex();
-  });
-}
-
-function findProjectByNum(projectDom) {
-  let index = projectDom.getAttribute("index-number");
-  return currentlyOrderedProjects[index];
+  if (appliedSortersAndFilters['filter'])
+  displayObj.addProjectsToDom(tasks.getTasks());
 };
 
 const init = function() {
   displayObj = displayHandler();
   tasks = allTasks();
-  storage().dataGetter(displayObj);
-  fetchedProjects = tasks.getProjects();
-
-  /* we'll create a deep copy from fetchedProjects, which we'll use when user 
-  sorts or filters the shown projects. We'll keep original fetchedProjects so 
-  that when user returns from inspecting toDos or opens the app again after 
-  closing it, the app shows the array of original order. */
-  currentlyOrderedProjects = _.cloneDeep(fetchedProjects);
-  console.log(currentlyOrderedProjects);
-  sortProjects();
-  //displayObj.projectsToOptions(fetchedProjects);
-  //displayObj.addProjectsToDom(fetchedProjects);
+  storage().dataGetter();
+  let fetchedTasks = tasks.getTasks();
+  displayObj.projectsToOptions(fetchedTasks);
+  displayObj.addProjectsToDom(fetchedTasks);
 }
 
 export {
   init,
-  getOriginalOrderOfProjects,
-  getCurrentlyOrderedProjects,
+  getFetchedTasks,
   createProject,
   restoreProject,
   modifyProject,
-  filterByDueDate,
-  sortProjects,
+  setFilter,
+  setSorter,
   addToDoToProject,
   getProjectToDos,
   toDoChecked,
