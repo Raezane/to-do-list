@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { parse, format } from "date-fns";
 //import { storage } from "./storageloader";
 import trashcan from "../images/trashcan.svg";
 import { 
@@ -21,8 +21,8 @@ const displayHandler = function () {
   const headerArea = document.querySelector('header');
 
   const returnButton = document.querySelector(".returnbutton");
-  const currentHeader = document.querySelector('header span h2');
-  const headerImg = document.querySelector('header span img');
+  const currentHeader = document.querySelector('header h2');
+  const headerImgs = document.querySelector('.headerimgs');
 
   const modalForm = document.querySelector("dialog form");
 
@@ -68,7 +68,7 @@ const displayHandler = function () {
 
   addproject.addEventListener("click", () => {
     addingNewProject = true;
-    //reset modal form, if modal is opened from "see details" fron already existing project
+    //reset modal form in case if modal is opened from "see details" from already existing project
     modalForm.reset();
     projectsaver.showModal();
     minDateToday();
@@ -105,7 +105,6 @@ const displayHandler = function () {
             projectPriority.value,
           );
           modalForm.reset();
-          //projectNum.increaseNum();
 
           /* if modal is opened from existing project details-button and project info is then
           edited and saved, modify the clicked project details to set the new entered values */
@@ -120,8 +119,6 @@ const displayHandler = function () {
           )};
 
         projectsaver.close();
-        projectsToOptions(getFetchedTasks());
-        resetFilterSelection(filters);
     };
   });
 
@@ -132,21 +129,23 @@ const displayHandler = function () {
   });
 
   addToDo.addEventListener("click", () => {
-    addToDo.style.display = "none";
-    addToDoForm.style.display = "flex";
+    toDoAdderViewManager('none', 'flex');
   });
 
   addToDoCancel.addEventListener("click", () => {
     addToDoForm.reset();
-    addToDo.style.display = "flex";
-    addToDoForm.style.display = "none";
+    toDoAdderViewManager('flex', 'none');
   });
+
+  const toDoAdderViewManager = function(displayprop1, displayprop2) {
+    addToDo.style.display = displayprop1;
+    addToDoForm.style.display = displayprop2;
+  };
 
   addToDoAdd.addEventListener("click", () => {
     if (toDoValidity()) {
 
-      //let selectedProject = document.querySelector('.projectDiv')
-      let selectedTaskId = projectSelector.options[projectSelector.selectedIndex].dataset.projectid
+      let selectedTaskId = projectSelector.options[projectSelector.selectedIndex].dataset.projectid;
       addToDoToProject(
         selectedTaskId,
         toDoInput.value
@@ -158,7 +157,8 @@ const displayHandler = function () {
 
       //if view if currently in the projects' to-dos, update the view live
       if (!(toDosParent.getParent() == undefined)) {
-        getProjectToDos(toDosParent.getParent());
+        let projectId = toDosParent.getParent().dataset.projectid
+        getProjectToDos(projectId);
       }
       addToDoAnimate();
     }
@@ -190,7 +190,6 @@ const displayHandler = function () {
     toDosParent.setParent(undefined);
     addProjectsToDom(getFetchedTasks());
     headerStateTransformer('Projects');
-    //resetFilterSelection(filters);
   });
 
   function sorterAndFilterTextSetter(radioOpener, radiosParent, filterOrSorter) {
@@ -211,11 +210,6 @@ const displayHandler = function () {
       return false;
     }
 
-    /*if (nameAlreadyExists(title)) {
-      validatorTexter(projectTitle, "Project with that name already exists!")
-      return false
-    }*/
-
     if (projectDueDate.value == "") {
       validatorTexter(projectDueDate, "Due date required.")
       return false;
@@ -228,13 +222,6 @@ const displayHandler = function () {
     let clickedRadio = e.target.parentNode;
     emptyFilterColor(filterButtons);
     clickedRadio.style.backgroundColor = "rgba(155, 155, 155, 0.356)";
-  }
-
-  function resetFilterSelection(filters) {
-    filters[0].checked = true;
-    emptyFilterColor(filters);
-    filters[0].parentElement.style.backgroundColor =
-      "rgba(155, 155, 155, 0.356)";
   }
 
   function emptyFilterColor(filterButtons) {
@@ -281,8 +268,7 @@ const displayHandler = function () {
 
   function isMainPageCurrentlyInView() {
     return content.childNodes.length > 0 && content.childNodes[0].classList.contains('projectDiv')
-  }
-
+  };
 
   function updateProjectDiv(selectedTaskId, numOfToDos) {
     if (isMainPageCurrentlyInView()) {
@@ -364,7 +350,7 @@ const displayHandler = function () {
 
   const headerStateTransformer = function(header) {
     returnButton.classList.toggle('hide');
-    headerImg.classList.toggle('hide');
+    headerImgs.classList.toggle('hide');
     currentHeader.textContent = header;
     currentHeader.classList.toggle('fontadjuster');
     headerArea.classList.toggle('headerspacer');
@@ -440,8 +426,7 @@ const displayHandler = function () {
       deleteProjectButton.addEventListener("click", (e) => {
         if (window.confirm("Confirm project deletion")) {
           removeProject(key);
-          projectsToOptions(tasks);
-        }
+        };
       });
 
       options.append(seeToDosButton, seeDetailsButton, deleteProjectButton);

@@ -15,7 +15,7 @@ const appliedSortersAndFilters = {
   'sorter': () => true
 }
 
-const getFetchedTasks = () => tasks.allTasks();
+const getFetchedTasks = () => tasks.getTasks();
 
 function saveData() {
   storage().dataSaver(tasks.getTasks());
@@ -72,7 +72,7 @@ const createProject = function (
   tasks.addToTasks(taskID, project);
   saveData();
 
-  displayObj.addProjectsToDom(tasks.allTasks());
+  runFilterAndSorter();
   displayObj.changeViewToMain();
 
 };
@@ -94,7 +94,7 @@ const modifyProject = function (
   foundProject.priority = priority;
 
   saveData();
-  displayObj.addProjectsToDom(tasks.getTasks());
+  runFilterAndSorter();
 };
 
 const setFilter = function(chosenFilter) {
@@ -136,8 +136,8 @@ const runFilterAndSorter = function() {
   tasksToBeHandled = Object.fromEntries(tasksToBeHandled);
   
   //..and send them to DOM for display
-  displayObj.addProjectsToDom(tasksToBeHandled);
   displayObj.projectsToOptions(tasksToBeHandled);
+  displayObj.addProjectsToDom(tasksToBeHandled);
 };
 
 const setSorter = function(chosenSorter) {
@@ -251,17 +251,20 @@ const getValues = function (taskID) {
 const removeProject = function (taskID) {
   tasks.deleteTask(taskID)
   saveData();
-  if (appliedSortersAndFilters['filter'])
-  displayObj.addProjectsToDom(tasks.getTasks());
+  runFilterAndSorter();
 };
+
+const updateView = function() {
+  let fetchedTasks = tasks.getTasks();
+  displayObj.projectsToOptions(fetchedTasks);
+  displayObj.addProjectsToDom(fetchedTasks);
+}
 
 const init = function() {
   displayObj = displayHandler();
   tasks = allTasks();
   storage().dataGetter();
-  let fetchedTasks = tasks.getTasks();
-  displayObj.projectsToOptions(fetchedTasks);
-  displayObj.addProjectsToDom(fetchedTasks);
+  updateView();
 }
 
 export {
