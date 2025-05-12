@@ -37,7 +37,13 @@
           <button>Sort by +</button>
           <div class="radioselectors">
             <label>
-              <input type="radio" id="default" name="sort" value="Default" checked />
+              <input
+                type="radio"
+                id="default"
+                name="sort"
+                value="Default"
+                checked
+              />
               Default
             </label>
             <label>
@@ -53,27 +59,68 @@
               To-Dos
             </label>
             <label>
-              <input type="radio" id="prioritylevel" name="sort" value="Prioritylevel" />
+              <input
+                type="radio"
+                id="prioritylevel"
+                name="sort"
+                value="Prioritylevel"
+              />
               Priority
             </label>
           </div>
         </div>
         <button class="addproject">
           Add new project
-          <svg fill="#currentColor" height="99px" width="99px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"/>       
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>            
-            <g id="SVGRepo_iconCarrier"><g><g><g><path d="M256,0C114.618,0,0,114.618,0,256s114.618,256,256,256s256-114.618,256-256S397.382,0,256,0z M256,469.333 c-117.818,0-213.333-95.515-213.333-213.333S138.182,42.667,256,42.667S469.333,138.182,469.333,256S373.818,469.333,256,469.333 z"/> <path d="M383.996,234.667H277.333V128c0-11.782-9.551-21.333-21.333-21.333s-21.333,9.551-21.333,21.333v106.667H128.038 c-11.782,0-21.333,9.551-21.333,21.333s9.551,21.333,21.333,21.333h106.628V384c0,11.782,9.551,21.333,21.333,21.333 s21.333-9.551,21.333-21.333V277.333h106.662c11.782,0,21.333-9.551,21.333-21.333S395.778,234.667,383.996,234.667z"/></g></g></g></g>   
+          <svg
+            fill="#currentColor"
+            height="99px"
+            width="99px"
+            version="1.1"
+            id="Layer_1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="0 0 512 512"
+            xml:space="preserve"
+          >
+            <g id="SVGRepo_bgCarrier" stroke-width="0" />
+            <g
+              id="SVGRepo_tracerCarrier"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <g id="SVGRepo_iconCarrier">
+              <g>
+                <g>
+                  <g>
+                    <path
+                      d="M256,0C114.618,0,0,114.618,0,256s114.618,256,256,256s256-114.618,256-256S397.382,0,256,0z M256,469.333 c-117.818,0-213.333-95.515-213.333-213.333S138.182,42.667,256,42.667S469.333,138.182,469.333,256S373.818,469.333,256,469.333 z"
+                    />
+                    <path
+                      d="M383.996,234.667H277.333V128c0-11.782-9.551-21.333-21.333-21.333s-21.333,9.551-21.333,21.333v106.667H128.038 c-11.782,0-21.333,9.551-21.333,21.333s9.551,21.333,21.333,21.333h106.628V384c0,11.782,9.551,21.333,21.333,21.333 s21.333-9.551,21.333-21.333V277.333h106.662c11.782,0,21.333-9.551,21.333-21.333S395.778,234.667,383.996,234.667z"
+                    />
+                  </g>
+                </g>
+              </g>
+            </g>
           </svg>
         </button>
       </aside>
       <header>
         <button type="button" class="returnbutton">Back to main page</button>
-        <div class="headerimgs">
+        <span class="headerimgs">
           <img src="images/brain.png" alt="calendaricon" />
           <img src="images/bulb.png" alt="calendaricon" />
-        </div>
+        </span>
         <h2>Projects</h2>
+        <span class="searchProjectParent">
+          <label
+            ><input
+              type="text"
+              name="searchproject"
+              id="searchproject"
+              placeholder="Search.."
+          /></label>
+        </span>
       </header>
       <main></main>
       <footer>
@@ -82,7 +129,14 @@
           <div class="toDoInputWrapper">
             <div>
               <label for="toDo">To-Do:</label>
-              <input type="text" id="toDo" name="toDo" minlength="1" maxlength="30"/>
+              <input
+                type="text"
+                id="toDo"
+                name="toDo"
+                minlength="1"
+                maxlength="30"
+                required
+              />
             </div>
             <div>
               <label for="chooseProject">Choose project:</label>
@@ -104,7 +158,7 @@
           <div class="leftside">
             <div>
               <label for="title">Title:</label>
-              <input type="text" id="title" name="title" maxlength="25"/>
+              <input type="text" id="title" name="title" maxlength="25" />
             </div>
             <div>
               <label for="description">Description:</label>
@@ -118,7 +172,13 @@
           <div class="rightside">
             <div>
               <label for="notes">Notes:</label>
-              <textarea name="notes" id="notes" rows="6" cols="20" maxlength="300"></textarea>
+              <textarea
+                name="notes"
+                id="notes"
+                rows="6"
+                cols="20"
+                maxlength="300"
+              ></textarea>
             </div>
             <div>
               <label for="priority">Priority level:</label>

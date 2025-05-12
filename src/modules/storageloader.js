@@ -7,7 +7,6 @@ function storage() {
     for (const [key, value] of Object.entries(projects)) {
       let projectObject = {};
 
-      console.log(projects[key])
       projectObject["id"] = key;
       projectObject["project"] = projects[key].getProject();
       projectObject["toDos"] = projects[key]
@@ -15,14 +14,17 @@ function storage() {
         .map((todo) => [todo.getToDo(), todo.checkIfDone()]);
 
       copy.push(projectObject);
-    };
+    }
 
+    //we'll need to save the copy to JSON format before saving it to local storage
     const tasksJSON = JSON.stringify(copy);
 
     localStorage.setItem("tasks", tasksJSON);
   };
 
   const dataGetter = function () {
+    /*.. and we need to parse the JSON format back to actual usable data, before we 
+    may restore anything */
     const parsedTasks = JSON.parse(localStorage.getItem("tasks"));
 
     for (const task of parsedTasks) {
@@ -36,7 +38,7 @@ function storage() {
         task.project.numOfProject,
         task.toDos,
       );
-    };
+    }
   };
 
   return { dataSaver, dataGetter };

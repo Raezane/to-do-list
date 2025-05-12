@@ -1,4 +1,11 @@
 Credits
 
 Graphics:
-- "checklist.png" designed by Freepik (freepik.com) 
+- "brain.png" designed by Flaticon (www.flaticon.com)
+- "bulb.png" designed by Flaticon (www.flaticon.com)
+- "addplus.svg" designed by Pictoprogrammers (https://pictogrammers.com/)
+- "calendar-all.svg" designed by Pictoprogrammers (https://pictogrammers.com/)
+- "calendar-month.svg" designed by Pictoprogrammers (https://pictogrammers.com/)
+- "calendar-today.svg" designed by Pictoprogrammers (https://pictogrammers.com/)
+- "calendar-week.svg" designed by Pictoprogrammers (https://pictogrammers.com/)
+- "trashcan.svg" designed by Pictoprogrammers (https://pictogrammers.com/)

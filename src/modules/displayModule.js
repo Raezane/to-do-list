@@ -1,28 +1,33 @@
-import { parse, format } from "date-fns";
+import { format } from "date-fns";
 //import { storage } from "./storageloader";
 import trashcan from "../images/trashcan.svg";
-import { 
+import {
   getFetchedTasks,
-  createProject, 
-  modifyProject, 
-  addToDoToProject, 
-  getProjectToDos, 
-  setFilter, 
+  createProject,
+  modifyProject,
+  addToDoToProject,
+  getProjectToDos,
+  searchByInput,
+  isProjectOverDue,
+  setFilter,
   setSorter,
-  getValues, 
+  getValues,
   removeProject,
-  toDoRemove, 
+  toDoRemove,
   toDoChecked,
-  toDoDoneOrNot
+  toDoDoneOrNot,
 } from "./controller";
 
 const displayHandler = function () {
+  //initiate  dom elements
 
-  const headerArea = document.querySelector('header');
+  const headerArea = document.querySelector("header");
 
   const returnButton = document.querySelector(".returnbutton");
-  const currentHeader = document.querySelector('header h2');
-  const headerImgs = document.querySelector('.headerimgs');
+  const currentHeader = document.querySelector("header h2");
+  const headerImgs = document.querySelector(".headerimgs");
+  const searchProjectParent = document.querySelector(".searchProjectParent");
+  const searchProject = document.querySelector("#searchproject");
 
   const modalForm = document.querySelector("dialog form");
 
@@ -52,18 +57,32 @@ const displayHandler = function () {
   );
   const addedFloat = document.querySelector(".addToDoButtons span");
 
-  const filterSortWrapper = document.querySelectorAll('.filterSortWrapper');
+  const filterSortWrapper = document.querySelectorAll(".filterSortWrapper");
 
-  const openFilter = document.querySelector('.filterSortWrapper:first-child button');
-  const filtersParent = document.querySelector('.filterSortWrapper:first-child .radioselectors');
-  const filters = document.querySelectorAll('.filterSortWrapper:first-child input[type="radio"]');
+  const openFilter = document.querySelector(
+    ".filterSortWrapper:first-child button",
+  );
+  const filtersParent = document.querySelector(
+    ".filterSortWrapper:first-child .radioselectors",
+  );
+  const filters = document.querySelectorAll(
+    '.filterSortWrapper:first-child input[type="radio"]',
+  );
 
-  const openSorter = document.querySelector('.filterSortWrapper:nth-child(2) button');
-  const sortsParent = document.querySelector('.filterSortWrapper:nth-child(2) .radioselectors');
-  const sorters = document.querySelectorAll('.filterSortWrapper:nth-child(2) input[type="radio"]');
+  const openSorter = document.querySelector(
+    ".filterSortWrapper:nth-child(2) button",
+  );
+  const sortsParent = document.querySelector(
+    ".filterSortWrapper:nth-child(2) .radioselectors",
+  );
+  const sorters = document.querySelectorAll(
+    '.filterSortWrapper:nth-child(2) input[type="radio"]',
+  );
 
   const content = document.querySelector("main");
 
+  /* we'll need this switch because the adding of project and created project's details inspector uses 
+  the same dialog */
   let addingNewProject = true;
 
   addproject.addEventListener("click", () => {
@@ -71,20 +90,12 @@ const displayHandler = function () {
     //reset modal form in case if modal is opened from "see details" from already existing project
     modalForm.reset();
     projectsaver.showModal();
+    //set min date to being the current date - selectable due date can't be in the past
     minDateToday();
+    //reset priority switch styling to default color
     projectPriority.style.backgroundColor = "white";
     addSaveProject.textContent = "Add Project";
     modalHeader.textContent = "Add new project";
-  });
-
-  projectPriority.addEventListener("change", () => {
-    if (projectPriority.value == "Medium") {
-      projectPriority.style.backgroundColor = "orange";
-    } else if (projectPriority.value == "High") {
-      projectPriority.style.backgroundColor = "red";
-    } else if (projectPriority.value == "Low") {
-      projectPriority.style.backgroundColor = "white";
-    }
   });
 
   cancelDialog.addEventListener("click", (e) => {
@@ -94,62 +105,77 @@ const displayHandler = function () {
 
   addSaveProject.addEventListener("click", (e) => {
     e.preventDefault();
-    let validity = projectValidity()
+    let validity = projectValidity();
     if (validity) {
       if (addingNewProject) {
-          createProject(
-            projectTitle.value,
-            projectDescription.value,
-            projectDueDate.value,
-            projectNotes.value,
-            projectPriority.value,
-          );
-          modalForm.reset();
+        createProject(
+          projectTitle.value,
+          projectDescription.value,
+          projectDueDate.value,
+          projectNotes.value,
+          projectPriority.value,
+        );
+        modalForm.reset();
 
-          /* if modal is opened from existing project details-button and project info is then
+        /* if modal is opened from existing project details-button and project info is then
           edited and saved, modify the clicked project details to set the new entered values */
-        } else {
-          modifyProject(
-            projectIdSetter.getClickedProjectID(),
-            projectTitle.value,
-            projectDescription.value,
-            projectDueDate.value,
-            projectNotes.value,
-            projectPriority.value,
-          )};
+      } else {
+        modifyProject(
+          projectIdSetter.getClickedProjectID(),
+          projectTitle.value,
+          projectDescription.value,
+          projectDueDate.value,
+          projectNotes.value,
+          projectPriority.value,
+        );
+      }
 
-        projectsaver.close();
-    };
+      projectsaver.close();
+    }
   });
 
   //hide the validator message in add project modal as soon as user starts typing again
-  projectTitle.addEventListener('input', () => {
-    projectTitle.setCustomValidity('');
+  projectTitle.addEventListener("input", () => {
+    projectTitle.setCustomValidity("");
     projectTitle.reportValidity();
   });
 
   addToDo.addEventListener("click", () => {
-    toDoAdderViewManager('none', 'flex');
+    toDoAdderViewManager("none", "flex");
   });
 
   addToDoCancel.addEventListener("click", () => {
     addToDoForm.reset();
-    toDoAdderViewManager('flex', 'none');
+    toDoAdderViewManager("flex", "none");
   });
 
-  const toDoAdderViewManager = function(displayprop1, displayprop2) {
+  const toDoAdderViewManager = function (displayprop1, displayprop2) {
     addToDo.style.display = displayprop1;
     addToDoForm.style.display = displayprop2;
   };
 
+  toDoInput.addEventListener("input", () => {
+    if (toDoInput.validity.tooShort || toDoInput.validity.valueMissing) {
+      validatorTexter(toDoInput, "Write to-do description!");
+    } else {
+      validatorTexter(toDoInput, "");
+    }
+  });
+
+  projectSelector.addEventListener("input", () => {
+    if (projectSelector.validity.valueMissing) {
+      validatorTexter(projectSelector, "Select the project to add to-do!");
+    } else {
+      validatorTexter(projectSelector, "");
+    }
+  });
+
   addToDoAdd.addEventListener("click", () => {
     if (toDoValidity()) {
-
-      let selectedTaskId = projectSelector.options[projectSelector.selectedIndex].dataset.projectid;
-      addToDoToProject(
-        selectedTaskId,
-        toDoInput.value
-      );
+      let selectedTaskId =
+        projectSelector.options[projectSelector.selectedIndex].dataset
+          .projectid;
+      addToDoToProject(selectedTaskId, toDoInput.value);
 
       //when "Add" is clicked, also empty the selector from default value to being 'blank'
       addToDoForm.reset();
@@ -157,19 +183,20 @@ const displayHandler = function () {
 
       //if view if currently in the projects' to-dos, update the view live
       if (!(toDosParent.getParent() == undefined)) {
-        let projectId = toDosParent.getParent().dataset.projectid
+        let projectId = toDosParent.getParent().dataset.projectid;
         getProjectToDos(projectId);
       }
+      //animate the adding effect of to-do
       addToDoAnimate();
     }
   });
 
-  openFilter.addEventListener('click', () => {
-    sorterAndFilterTextSetter(openFilter, filtersParent, 'Filter')
+  openFilter.addEventListener("click", () => {
+    sorterAndFilterTextSetter(openFilter, filtersParent, "Filter");
   });
 
-  openSorter.addEventListener('click', () => {
-    sorterAndFilterTextSetter(openSorter, sortsParent, 'Sort by')
+  openSorter.addEventListener("click", () => {
+    sorterAndFilterTextSetter(openSorter, sortsParent, "Sort by");
   });
 
   filters.forEach((filter) => {
@@ -189,115 +216,145 @@ const displayHandler = function () {
   returnButton.addEventListener("click", () => {
     toDosParent.setParent(undefined);
     addProjectsToDom(getFetchedTasks());
-    headerStateTransformer('Projects');
+    headerStateTransformer("Projects");
   });
 
-  function sorterAndFilterTextSetter(radioOpener, radiosParent, filterOrSorter) {
-    if (radioOpener.textContent == `${filterOrSorter} +`) radioOpener.textContent = `${filterOrSorter} -`;
-    else radioOpener.textContent = `${filterOrSorter} +`;
-    radiosParent.classList.toggle('slideIntoView');
-  }
+  searchProject.addEventListener("input", searchByInput);
+  //empty search bar from input as user focuses elsewhere
+  searchProject.addEventListener("focusout", (e) => {
+    searchProject.value = "";
+  });
 
-  function projectValidity() {
 
-    function validatorTexter(inputToInform, text) {
-      inputToInform.setCustomValidity(text);
-      inputToInform.reportValidity();
+  const updatePriorityColors = function () {
+    if (projectPriority.value == "Medium") {
+      projectPriority.style.backgroundColor = "orange";
+    } else if (projectPriority.value == "High") {
+      projectPriority.style.backgroundColor = "red";
+    } else if (projectPriority.value == "Low") {
+      projectPriority.style.backgroundColor = "white";
     }
+  };
 
+  projectPriority.addEventListener("change", updatePriorityColors);
+
+  //update the texts of filter and sorter as user clicks them open and closed.
+  const sorterAndFilterTextSetter = function (
+    radioOpener,
+    radiosParent,
+    filterOrSorter,
+  ) {
+    if (radioOpener.textContent == `${filterOrSorter} +`)
+      radioOpener.textContent = `${filterOrSorter} -`;
+    else radioOpener.textContent = `${filterOrSorter} +`;
+    radiosParent.classList.toggle("slideIntoView");
+  };
+
+  const projectValidity = function () {
     if (projectTitle.value == "") {
       validatorTexter(projectTitle, "Set Project name!");
       return false;
     }
 
     if (projectDueDate.value == "") {
-      validatorTexter(projectDueDate, "Due date required.")
+      validatorTexter(projectDueDate, "Due date required.");
       return false;
     }
 
     return true;
-  }
+  };
 
-  function filterAndSortColor(e, filterButtons) {
+  const filterAndSortColor = function (e, filterButtons) {
     let clickedRadio = e.target.parentNode;
     emptyFilterColor(filterButtons);
     clickedRadio.style.backgroundColor = "rgba(155, 155, 155, 0.356)";
-  }
+  };
 
-  function emptyFilterColor(filterButtons) {
+  const emptyFilterColor = function (filterButtons) {
     for (const button of filterButtons) {
       button.parentNode.style.backgroundColor = "transparent";
     }
-  }
+  };
 
-  function toDoValidity() {
-    if (toDoInput.validity.tooShort) {
-      toDoInput.setCustomValidity("Write to-do description!");
-      toDoInput.reportValidity();
+  const validatorTexter = function (inputToInform, text) {
+    inputToInform.setCustomValidity(text);
+    inputToInform.reportValidity();
+  };
+
+  const toDoValidity = function () {
+    if (toDoInput.validity.tooShort || toDoInput.validity.valueMissing) {
+      validatorTexter(toDoInput, "Write to-do description!");
       return false;
     }
 
     if (projectSelector.validity.valueMissing) {
-      projectSelector.setCustomValidity("Select the project to add to-do!");
-      projectSelector.reportValidity();
+      validatorTexter(projectSelector, "Select the project to add to-do!");
       return false;
+    } else {
+      validatorTexter(toDoInput, "");
+      validatorTexter(projectSelector, "");
     }
 
     return true;
-  }
+  };
 
-  function projectsToOptions(allprojects) {
-    //first empty all existing option-elements from select-element
+  const projectsToOptions = function (allprojects) {
+    //first empty all existing option-elements from select-element, before adding the updated list
     projectSelector.textContent = "";
 
     for (const [key, value] of Object.entries(allprojects)) {
       const optionValue = document.createElement("option");
       optionValue.value = allprojects[key].getProject().title;
       optionValue.textContent = allprojects[key].getProject().title;
-      optionValue.dataset.projectid = key
+      optionValue.dataset.projectid = key;
 
       projectSelector.append(optionValue);
-    };
-  }
-
-  function changeViewToMain() {
-    if (currentHeader.textContent !== 'Projects') {
-      headerStateTransformer('Projects');
-    };
+    }
   };
 
-  function isMainPageCurrentlyInView() {
-    return content.childNodes.length > 0 && content.childNodes[0].classList.contains('projectDiv')
+  const changeViewToMain = function () {
+    if (currentHeader.textContent !== "Projects") {
+      headerStateTransformer("Projects");
+    }
   };
 
-  function updateProjectDiv(selectedTaskId, numOfToDos) {
+  const isMainPageCurrentlyInView = function () {
+    return (
+      content.childNodes.length > 0 &&
+      content.childNodes[0].classList.contains("projectDiv")
+    );
+  };
+
+  const updateProjectDiv = function (selectedTaskId, numOfToDos) {
     if (isMainPageCurrentlyInView()) {
-
-      let domProject = document.querySelector(`[data-projectid="${selectedTaskId}"]`)
-      domProject.childNodes[1].childNodes[0].textContent = `Open To-Dos (${numOfToDos})`
-    };
+      let domProject = document.querySelector(
+        `[data-projectid="${selectedTaskId}"]`,
+      );
+      domProject.childNodes[1].childNodes[0].textContent = `Open To-Dos (${numOfToDos})`;
+    }
   };
 
-  function minDateToday() {
+  const minDateToday = function () {
     const today = format(new Date(), "yyyy-MM-dd");
     datepicker.min = today;
   };
 
-  function addToDoAnimate() {
+  const addToDoAnimate = function () {
     addedFloat.classList.add("spanAnimate");
     setTimeout(() => {
       addedFloat.classList.remove("spanAnimate");
     }, 1500);
   };
 
-  function colorByPriority(projectDiv, priorityValue) {
+  const colorByPriority = function (projectDiv, priorityValue) {
     if (priorityValue == "High") {
       projectDiv.style.backgroundColor = "#fecaca";
     } else if (priorityValue == "Medium") {
       projectDiv.style.backgroundColor = "#fef08a";
-    };
+    }
   };
 
+  //when user clicks 'Details & edit', save the correct project's info to fetch and modify later
   const detailsToProjectConfigurer = function () {
     let pressedDetailsButtonProject;
 
@@ -308,6 +365,7 @@ const displayHandler = function () {
     return { setClickedProjectID, getClickedProjectID };
   };
 
+  //this function is used to keep sync of internal to-do objects and dom to-dos
   const toDoIndexer = function () {
     let index = 0;
 
@@ -317,7 +375,7 @@ const displayHandler = function () {
     const getIndex = () => index;
 
     return { increaseIndex, resetIndex, getIndex };
-  }; 
+  };
 
   const toDosParentConfigurer = function () {
     let clickedProjectToDos;
@@ -328,7 +386,7 @@ const displayHandler = function () {
     return { setParent, getParent };
   };
 
-  function updateToDoFooter(tasks) {
+  const updateToDoFooter = function (tasks) {
     if (Object.keys(tasks).length > 0) {
       if (
         addToDoForm.style.display == "none" ||
@@ -338,29 +396,30 @@ const displayHandler = function () {
       } else addToDo.style.display = "none";
     } else
       (addToDo.style.display = "none"), (addToDoForm.style.display = "none");
-  }
+  };
 
-  function setValuesToModal(values) {
+  const setValuesToModal = function (values) {
     projectTitle.value = values.title;
     projectDescription.value = values.description;
     projectDueDate.value = values.dueDate;
     projectNotes.value = values.notes;
     projectPriority.value = values.priority;
-  }
+  };
 
-  const headerStateTransformer = function(header) {
-    returnButton.classList.toggle('hide');
-    headerImgs.classList.toggle('hide');
+  const headerStateTransformer = function (header) {
+    returnButton.classList.toggle("hide");
+    headerImgs.classList.toggle("hide");
+    searchProjectParent.classList.toggle("hide");
     currentHeader.textContent = header;
-    currentHeader.classList.toggle('fontadjuster');
-    headerArea.classList.toggle('headerspacer');
-  }
+    currentHeader.classList.toggle("fontadjuster");
+    headerArea.classList.toggle("headerspacer");
+  };
 
   const addProjectsToDom = function (tasks) {
     //first empty parent container from project-elements, before refreshing with up-to-date projects
     content.textContent = "";
 
-    filterSortWrapper.forEach((element) => element.classList.remove('hide2'))
+    filterSortWrapper.forEach((element) => element.classList.remove("hide2"));
 
     //add "Add to-do" bar, if there are projects available
     updateToDoFooter(tasks);
@@ -368,7 +427,7 @@ const displayHandler = function () {
     for (const [key, value] of Object.entries(tasks)) {
       const projectDiv = document.createElement("div");
       projectDiv.classList.add("projectDiv");
-      projectDiv.dataset.projectid = key
+      projectDiv.dataset.projectid = key;
 
       const titleDueDate = document.createElement("div");
 
@@ -376,9 +435,17 @@ const displayHandler = function () {
       title.textContent = tasks[key].getProject().title;
 
       const dueDate = document.createElement("h3");
-      dueDate.textContent = `Due Date: ${tasks[key].getProject().dueDate}`;
+      let dueDateString = tasks[key].getProject().dueDate;
+      dueDate.textContent = `Due Date: ${dueDateString}`;
 
       titleDueDate.append(title, dueDate);
+
+      if (isProjectOverDue(dueDateString)) {
+        const overDueMsg = document.createElement("h4");
+        overDueMsg.textContent = "OVERDUE !!";
+        overDueMsg.classList.add("overDue");
+        dueDate.append(overDueMsg);
+      }
 
       const options = document.createElement("div");
 
@@ -397,19 +464,21 @@ const displayHandler = function () {
         //empty parent container from project-elements, before refreshing with up-to-date to-dos
         content.textContent = "";
 
-        filterSortWrapper.forEach((element) => element.classList.add('hide2'))
-        
-        let projectHeader = toDosParent.getParent().querySelector('div:first-child h3').textContent;
+        filterSortWrapper.forEach((element) => element.classList.add("hide2"));
+
+        let projectHeader = toDosParent
+          .getParent()
+          .querySelector("div:first-child h3").textContent;
 
         headerStateTransformer(projectHeader);
         getProjectToDos(key);
       });
 
       seeDetailsButton.addEventListener("click", (e) => {
-
         addingNewProject = false;
 
-        let pressedButtonTaskId = e.target.closest('.projectDiv').dataset.projectid
+        let pressedButtonTaskId =
+          e.target.closest(".projectDiv").dataset.projectid;
 
         projectIdSetter.setClickedProjectID(pressedButtonTaskId);
 
@@ -418,6 +487,7 @@ const displayHandler = function () {
 
         let values = getValues(pressedButtonTaskId);
         setValuesToModal(values);
+        updatePriorityColors();
 
         addSaveProject.textContent = "Save";
         modalHeader.textContent = "Edit project";
@@ -426,7 +496,7 @@ const displayHandler = function () {
       deleteProjectButton.addEventListener("click", (e) => {
         if (window.confirm("Confirm project deletion")) {
           removeProject(key);
-        };
+        }
       });
 
       options.append(seeToDosButton, seeDetailsButton, deleteProjectButton);
@@ -434,12 +504,12 @@ const displayHandler = function () {
       projectDiv.append(titleDueDate, options);
       colorByPriority(projectDiv, tasks[key].getProject().priority);
       content.append(projectDiv);
-    };
+    }
   };
 
   const addToDosToDom = function (projectToDos) {
     content.textContent = "";
-    
+
     toDoIndex.resetIndex();
 
     const ulList = document.createElement("ul");
@@ -472,20 +542,20 @@ const displayHandler = function () {
       deleteIcon.addEventListener("click", (e) => {
         toDoRemove(
           toDosParent.getParent().dataset.projectid,
-          e.target.closest('.toDoItem').dataset.indexnum,
+          e.target.closest(".toDoItem").dataset.indexnum,
         );
       });
 
       toDoCheck.addEventListener("click", (e) => {
         toDoChecked(
           toDosParent.getParent().dataset.projectid,
-          e.target.closest('.toDoItem').dataset.indexnum,
+          e.target.closest(".toDoItem").dataset.indexnum,
         );
 
         if (
           toDoDoneOrNot(
             toDosParent.getParent().dataset.projectid,
-            e.target.closest('.toDoItem').dataset.indexnum,
+            e.target.closest(".toDoItem").dataset.indexnum,
           )
         ) {
           e.target.checked = true;
@@ -500,12 +570,12 @@ const displayHandler = function () {
       content.append(ulList);
     });
 
-    function colorAndMarkIfDone(toDo, listItem, toDoCheck) {
+    const colorAndMarkIfDone = function (toDo, listItem, toDoCheck) {
       if (toDo.checkIfDone() == true) {
         listItem.style.backgroundColor = "yellowgreen";
         toDoCheck.checked = true;
       }
-    }
+    };
   };
 
   const toDoIndex = toDoIndexer();
@@ -513,7 +583,7 @@ const displayHandler = function () {
   const toDosParent = toDosParentConfigurer();
 
   //hide the return button and filters when the page first loads
-  returnButton.classList.add('hide');
+  returnButton.classList.add("hide");
 
   return {
     projectsToOptions,
@@ -523,7 +593,6 @@ const displayHandler = function () {
     updateProjectDiv,
     addProjectsToDom,
     addToDosToDom,
-    
   };
 };
 

@@ -1,3 +1,7 @@
+/* the internal data models are divided into three parts: individual to-do handler when
+to-do is created to a certain project, a project handler which contains created to-do-handlers 
+and on top the tasks object, which contain all the projects. */
+
 function allTasks() {
   const tasksObj = {};
 
@@ -8,19 +12,13 @@ function allTasks() {
   };
 
   const deleteTask = function (taskID) {
-    delete tasksObj[taskID]
+    delete tasksObj[taskID];
   };
 
   return { getTasks, addToTasks, deleteTask };
 }
 
-function projectHandler(
-  title,
-  description,
-  dueDate,
-  notes,
-  priority,
-) {
+function projectHandler(title, description, dueDate, notes, priority) {
   const project = {
     title,
     description,
