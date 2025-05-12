@@ -11,6 +11,8 @@ The app:
 - filter created projects which are due today, this week, this month or see all
 - sort projects by its name, number of to-dos, priority level or due date
 - filtering and sorting at the same time also works
+- when the user opens the app and if there are some projects overdue, it will initially sort the projects by due date and animate a pulsating overdue-information text to user
+- search projects by its name
 - create individual to-dos to any created project
 - check or uncheck a todo depending if it's done or not
 - delete an individual todo altogether
