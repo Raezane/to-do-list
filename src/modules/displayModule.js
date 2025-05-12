@@ -415,6 +415,13 @@ const displayHandler = function () {
     headerArea.classList.toggle("headerspacer");
   };
 
+  const colorAndMarkIfDone = function (toDo, listItem, toDoCheck) {
+    if (toDo.checkIfDone() == true) {
+      listItem.style.backgroundColor = "yellowgreen";
+      toDoCheck.checked = true;
+    }
+  };
+
   const addProjectsToDom = function (tasks) {
     //first empty parent container from project-elements, before refreshing with up-to-date projects
     content.textContent = "";
@@ -569,13 +576,6 @@ const displayHandler = function () {
 
       content.append(ulList);
     });
-
-    const colorAndMarkIfDone = function (toDo, listItem, toDoCheck) {
-      if (toDo.checkIfDone() == true) {
-        listItem.style.backgroundColor = "yellowgreen";
-        toDoCheck.checked = true;
-      }
-    };
   };
 
   const toDoIndex = toDoIndexer();
