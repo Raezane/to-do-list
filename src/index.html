@@ -8,65 +8,67 @@
   <body>
     <div class="allwrapper">
       <aside>
-        <div class="filterSortWrapper">
-          <button>Filter +</button>
-          <div class="radioselectors">
-            <label>
-              <img src="images/calendar-all.svg" alt="calendar-all" />
-              <input type="radio" id="all" name="filter" value="All" checked />
-              All
-            </label>
-            <label>
-              <img src="images/calendar-today.svg" alt="calendar-today" />
-              <input type="radio" id="today" name="filter" value="Today" />
-              Today
-            </label>
-            <label>
-              <img src="images/calendar-week.svg" alt="calendar-week" />
-              <input type="radio" id="week" name="filter" value="This week" />
-              This week
-            </label>
-            <label>
-              <img src="images/calendar-month.svg" alt="calendar-month" />
-              <input type="radio" id="month" name="filter" value="This month" />
-              This month
-            </label>
+        <div class="filterAndSortParent">
+          <div class="filterSortWrapper">
+            <button>Filter +</button>
+            <div class="radioselectors">
+              <label>
+                <img src="images/calendar-all.svg" alt="calendar-all" />
+                <input type="radio" id="all" name="filter" value="All" checked />
+                All
+              </label>
+              <label>
+                <img src="images/calendar-today.svg" alt="calendar-today" />
+                <input type="radio" id="today" name="filter" value="Today" />
+                Today
+              </label>
+              <label>
+                <img src="images/calendar-week.svg" alt="calendar-week" />
+                <input type="radio" id="week" name="filter" value="This week" />
+                This week
+              </label>
+              <label>
+                <img src="images/calendar-month.svg" alt="calendar-month" />
+                <input type="radio" id="month" name="filter" value="This month" />
+                This month
+              </label>
+            </div>
           </div>
-        </div>
-        <div class="filterSortWrapper">
-          <button>Sort by +</button>
-          <div class="radioselectors">
-            <label>
-              <input
-                type="radio"
-                id="default"
-                name="sort"
-                value="Default"
-                checked
-              />
-              Default
-            </label>
-            <label>
-              <input type="radio" id="duedate" name="sort" value="Due date" />
-              Due date
-            </label>
-            <label>
-              <input type="radio" id="name" name="sort" value="Name" />
-              Name
-            </label>
-            <label>
-              <input type="radio" id="to-dos" name="sort" value="To-Dos" />
-              To-Dos
-            </label>
-            <label>
-              <input
-                type="radio"
-                id="prioritylevel"
-                name="sort"
-                value="Prioritylevel"
-              />
-              Priority
-            </label>
+          <div class="filterSortWrapper">
+            <button>Sort by +</button>
+            <div class="radioselectors">
+              <label>
+                <input
+                  type="radio"
+                  id="default"
+                  name="sort"
+                  value="Default"
+                  checked
+                />
+                Default
+              </label>
+              <label>
+                <input type="radio" id="duedate" name="sort" value="Due date" />
+                Due date
+              </label>
+              <label>
+                <input type="radio" id="name" name="sort" value="Name" />
+                Name
+              </label>
+              <label>
+                <input type="radio" id="to-dos" name="sort" value="To-Dos" />
+                To-Dos
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  id="prioritylevel"
+                  name="sort"
+                  value="Prioritylevel"
+                />
+                Priority
+              </label>
+            </div>
           </div>
         </div>
         <button class="addproject">

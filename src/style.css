@@ -38,8 +38,8 @@ button {
 aside {
   box-shadow: 0px 1px 5px -2px black;
   grid-area: 1 / 1 / 4 / 2;
-  width: min-content;
-  min-height: min-content;
+  min-width: min-content;
+  max-height: 100%;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -83,7 +83,7 @@ input[type="radio"] {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  height: 50px;
+  height: 2.5rem;
   border-radius: 5px;
   padding-left: 5%;
 }
@@ -96,6 +96,10 @@ input[type="radio"] {
   max-height: 50%;
 }
 
+.filterAndSortParent {
+  overflow: auto;
+}
+
 .filterSortWrapper button,
 .addproject {
   background-color: white;
@@ -105,6 +109,7 @@ input[type="radio"] {
   font-size: 20px;
   border: none;
   border-radius: 7px;
+  
 }
 
 .filterSortWrapper button {
@@ -184,6 +189,7 @@ header {
   padding: 10px 10px;
   box-shadow: 2px 0 5px -2px black;
   gap: 10px;
+  height: 80px;
 }
 
 header h2 {
@@ -722,11 +728,13 @@ textarea {
   .allwrapper {
     grid-template-rows: 8vh 7vh auto min-content;
     grid-template-columns: none;
+    height: 100vh;
   }
 
   header {
     grid-area: 1 / 1 / 2 / 1;
     padding: 5px;
+    height: auto;
   }
 
   header span img {
@@ -747,10 +755,17 @@ textarea {
     flex-direction: row;
     padding: 5px 10px;
     min-height: min-content;
+    overflow: visible;
+  }
+
+  .filterAndSortParent {
+    overflow: visible;
+    display: flex;
   }
 
   footer {
     grid-area: 4 / 1 / 5 / 1;
+    position: sticky;
   }
 
   input[type="radio"] {
@@ -769,6 +784,10 @@ textarea {
     background-color: white;
     padding: 0;
     font-size: 11px;
+  }
+
+  .filterSortWrapper:first-child {
+    margin-right: 10px;
   }
 
   .filterSortWrapper:first-child .radioselectors label {
