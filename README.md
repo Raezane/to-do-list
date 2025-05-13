@@ -25,7 +25,7 @@ General:
 **Technologies Used**
 
 Languages: JavaScript, HTML, CSS
-Tools & Libraries: Webpack, Prettier, Eslint, Babel, NPM, Lodash, dateFns
+Tools & Libraries: Webpack, Prettier, Eslint, NPM, Lodash, dateFns, UUID
 
 **Challenges & Learnings**
 
